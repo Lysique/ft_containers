@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 13:11:50 by tamighi           #+#    #+#             */
-/*   Updated: 2022/03/28 11:08:04 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/03/29 12:59:38 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,15 +23,15 @@ namespace ft
  *
  */
 
-template<class Pointer>
+template<typename T>
 class	vector_const_iterator
 {
 	
 public:
 
-	typedef Pointer		value_type;
-	typedef Pointer*	pointer;
-	typedef Pointer&	reference;
+	typedef T		value_type;
+	typedef T*	pointer;
+	typedef T&	reference;
 
 public:
 
@@ -179,19 +179,19 @@ protected:
 	 *
 	 */
 
-template<class Pointer>
-class vector_iterator : public vector_const_iterator<Pointer>
+template<typename T>
+class vector_iterator : public vector_const_iterator<T>
 {
 
 public:
 
-	typedef Pointer*			pointer;
-	typedef Pointer&			reference;
-	typedef Pointer				value_type;
+	typedef T*			pointer;
+	typedef T&			reference;
+	typedef T			value_type;
 
 public:
 
-	explicit vector_iterator(pointer ptr) : vector_const_iterator<Pointer>(ptr)
+	explicit vector_iterator(pointer ptr) : vector_const_iterator<T>(ptr)
 	{
 	}
 
@@ -292,23 +292,268 @@ class vector
 	/*  TYPEDEFS */
 public:
 
-	typedef T	value_type;
-	typedef T*	pointer;
-	typedef T&	reference;
+	typedef vector_iterator<T>		iterator;
+	typedef vector_iterator<T>		const_iterator;
+	typedef vector_iterator<T>		reverse_iterator;
+	typedef vector_iterator<T>		const_reverse_iterator;
+	typedef size_t					size_type;
+	typedef T						value_type;
+	typedef T*						pointer;
+	typedef T&						reference;
+	typedef const T& 				const_reference;
+	typedef	Alloc					allocator_type;
 
 public:
 
+	/*   CONSTRUCTORS  */	
 	vector(void)
-		: _capacity(0), _size(0)
+		: _m_capacity(0), _m_size(0)
+	{
+	}
+
+	vector(size_t n)
+		: _m_capacity(n), _m_size(0)
+	{
+	}
+
+	/*   DESTRUCTOR  */
+	~vector(void)
+	{
+	}
+
+	/*   VECTOR OPERATORS OVERLOAD  */
+	vector&	operator=(vector &cpy)
+	{
+		_m_capacity = cpy._m_capacity;
+		_m_size = cpy._m_size;
+		_m_start = cpy._m_start;
+		return (*this);
+	}
+
+	/*   ITERATORS FUNCTIONS  */	
+	iterator	begin(void)
+	{
+		return (iterator(_m_start));
+	}
+
+	const_iterator	begin(void) const
+	{
+		return (const_iterator(_m_start));
+	}
+
+	iterator	end(void)
+	{
+		return (iterator(_m_start + _m_size));
+	}
+
+	const_iterator	end(void) const
+	{
+		return (const_iterator(_m_start + _m_size));
+	}
+
+	reverse_iterator	rbegin(void)
+	{
+		return (reverse_iterator(this->end()));
+	}
+
+	const_reverse_iterator	rbegin(void) const
+	{
+		return (const_reverse_iterator(this->end()));
+	}
+
+	reverse_iterator	rend(void)
+	{
+		return (reverse_iterator(this->begin()));
+	}
+
+	const_reverse_iterator	rend(void) const
+	{
+		return (const_reverse_iterator(this->begin()));
+	}
+
+	const_iterator	cbegin(void)
+	{
+		return (const_iterator(this->begin()));
+	}
+
+	const_iterator	cend(void)
+	{
+		return (const_iterator(this->end()));
+	}
+
+	const_reverse_iterator	crbegin(void)
+	{
+		return (const_reverse_iterator(this->end()));
+	}
+
+	const_reverse_iterator	crend(void)
+	{
+		return (const_reverse_iterator(this->begin()));
+	}
+
+	/*   CAPACITY FUNCTIONS  */
+	size_type	size(void) const
+	{
+		return (this->_m_size);
+	}
+
+	size_type	max_size(void) const
+	{
+	//	return (allocator_traits_type::max_size(this->alloc()));
+	//	return max possible size of vector(see alloc fct)
+		return (this->_m_size);
+	}
+
+	void	resize(size_type new_size)
+	{
+		if (new_size < this->size())
+			//erase elements start + new size to end
+			;
+		else
+			//reserve new_size
+			;
+	}
+
+	void	resize(size_type new_size, const T& val)
+	{
+		if (new_size < this->size())
+			//erase elements start + new size to end
+			;
+		else
+			//insert x from finish up to new_size - m_size elements
+			;
+	}
+
+	size_type	capacity(void)
+	{
+		return (this->_m_capacity);
+	}
+
+	bool	empty(void)
+	{
+		return (this->_m_size == 0);
+	}
+
+	void	reserve(size_type new_cap)
+	{
+		if (this->_m_capacity < new_cap)
+			// realloc memory or expand buffer/ + modify members
+			;
+		// not sure if it has to do something in the other case ...
+	}
+
+	void	shrink_to_fit(void)
+	{
+		//c++11
+	}
+	
+	/*   ELEMENT ACCESS  */
+	reference	operator[](size_type n)
+	{
+		return (this->_m_start[n]);
+	}
+
+	const_reference	operator[](size_type n) const
+	{
+		return (this->_m_start[n]);
+	}
+
+	reference	at(size_type n)
+	{
+		// only if in range
+		return (this->_m_start[n];
+	}
+
+	const_reference	at(size_type n) const
+	{
+		// only if in range
+		return (this->_m_start[n];
+	}
+
+	reference	front(void)
+	{
+		return (*this->_m_start);
+	}
+
+	const_reference	front(void) const
+	{
+		return (*this->_m_start);
+	}
+
+	reference	back(void)
+	{
+		return (this->_m_start[this->_m_size -1]);
+	}
+
+	const_reference	back(void) const
+	{
+		return (this->_m_start[this->_m_size -1]);
+	}
+
+	void	data(void)
+	{
+		//c++11
+	}
+
+	/*   MODIFIERS  */
+	template<class InIt>
+	void	assign(InIt first, InIt last)
+	{
+		iterator	it = this->begin();
+		for (; it != this->end() && first != last; it++, first++)
+			*it = *first;
+		if (first == last)
+			// erase all the other elements of this
+			;
+		else
+			// insert all reminding elements from first to last
+			;
+	}
+
+	void assign (size_type n, const value_type& val)
+	{
+		for (; n < this->_m_size; --n)
+			*it = val;
+	}
+
+	void	push_back(void)
+	{
+	}
+
+	void	pop_back(void)
+	{
+	}
+
+	void	insert(void)
+	{
+	}
+
+	void	erase(void)
+	{
+	}
+
+	void	swap(void)
+	{
+	}
+
+	void	clear(void)
+	{
+	}
+
+	void	emplace(void)
+	{
+	}
+
+	void	emplace_back(void)
 	{
 	}
 
 private:
 
-	pointer	_startPtr;
-	size_t	_capacity;
-	size_t	_size;
-
+	pointer	_m_start; 
+	size_t	_m_capacity; // size malloced
+	size_t	_m_size; // size of the array, x elements
+	//max size : max possible size of the array
 
 }; /* End of vector class */
 
