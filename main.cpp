@@ -6,19 +6,19 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 13:13:12 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/03 16:33:08 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/04 10:34:38 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "containers/vector.hpp"
-#include "containers/pair.hpp"
 #include <vector>
-#include "containers/make_pair.hpp"
+//#include "containers/pair.hpp"
+//#include "containers/make_pair.hpp"
 #include "containers/iterator_traits.hpp"
-#include "containers/reverse_iterator.hpp"
-#include "containers/is_integral.hpp"
-#include "containers/equal.hpp"
-#include "containers/enable_if.hpp"
+//#include "containers/reverse_iterator.hpp"
+//#include "containers/is_integral.hpp"
+//#include "containers/equal.hpp"
+//#include "containers/enable_if.hpp"
 
 class test
 {

@@ -6,7 +6,7 @@
 #    By: tamighi <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/30 11:14:33 by tamighi           #+#    #+#              #
-#    Updated: 2022/03/31 11:16:28 by tamighi          ###   ########.fr        #
+#    Updated: 2022/04/04 10:35:18 by tamighi          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ OBJ_DIR = objs/
 
 FILES = main.cpp
 F_DIR = ./
-HEADERS = enable_if.hpp is_integral.hpp vector.hpp
+HEADERS = iterator_traits.hpp vector.hpp
 H_DIR = containers/
 
 SRCS = $(addprefix $(F_DIR), $(FILES))
