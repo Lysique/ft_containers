@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/04 12:21:50 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/04 15:09:15 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/04 15:35:51 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,9 +77,6 @@ struct is_integral<int> : true_type {};
 
 template<>
 struct is_integral<long> : true_type {};
-
-template<>
-struct is_integral<long long> : true_type {};
 
 }
 

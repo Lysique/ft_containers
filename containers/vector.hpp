@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 13:11:50 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/04 10:36:12 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/04 15:56:06 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -292,17 +292,17 @@ class vector
 	/*  TYPEDEFS */
 public:
 
-	typedef vector_iterator<T>		iterator;
-	typedef vector_iterator<T>		const_iterator;
-	typedef vector_iterator<T>		reverse_iterator;
-	typedef vector_iterator<T>		const_reverse_iterator;
-	typedef size_t					size_type;
-	typedef T						value_type;
-	typedef T*						pointer;
-	typedef pointer					difference_type;
-	typedef T&						reference;
-	typedef const T& 				const_reference;
-	typedef	Alloc					allocator_type;
+	typedef vector_iterator<T>					iterator;
+	typedef const_vector_iterator<T>			const_iterator;
+	typedef reverse_iterator<iterator>			reverse_iterator;
+	typedef reverse_iterator<const_iterator>	const_reverse_iterator;
+	typedef size_t								size_type;
+	typedef T									value_type;
+	typedef T*									pointer;
+	typedef pointer								difference_type;
+	typedef T&									reference;
+	typedef const T& 							const_reference;
+	typedef	Alloc								allocator_type;
 
 public:
 

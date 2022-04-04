@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/04 11:07:11 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/04 12:18:54 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/04 15:40:48 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define FT_REVERSE_ITERATOR_HPP
 
 #include "iterator_traits.hpp"
+#include "enable_if.hpp"
 
 namespace ft
 {
@@ -48,7 +49,6 @@ public:
 	template<class U>
 	reverse_iterator(const reverse_iterator<U>& other)
 	{
-		//ENABLE_IF
 		m_current(other.base());
 	}
 
@@ -143,7 +143,6 @@ private:
 	It	m_current;
 };
 
-	/*   NON-MEMBER FUNCTIONS  */ // ENABLE_IF ??
 template<class It1, class It2>
 bool	operator==(const ft::reverse_iterator<It1> lhs, const ft::reverse_iterator<It2> rhs)
 {
