@@ -6,15 +6,14 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 13:11:50 by tamighi           #+#    #+#             */
-/*   Updated: 2022/03/29 12:59:38 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/03 16:41:17 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef VECTOR_HPP
 # define VECTOR_HPP
 
-#include <iostream>
-#include <memory>
+#include "iterator_traits.hpp"
 
 namespace ft
 {
@@ -29,9 +28,11 @@ class	vector_const_iterator
 	
 public:
 
-	typedef T		value_type;
-	typedef T*	pointer;
-	typedef T&	reference;
+	typedef T								value_type;
+	typedef T*								pointer;
+	typedef T&								reference;
+	typedef	ft::iterator_traits<pointer>	difference_type;
+	typedef	std::random_access_iterator_tag	iterator_category;
 
 public:
 
@@ -126,7 +127,6 @@ public:
 		return (vector_const_iterator(_ptr - off));
 	}
 
-	//Friend needed for n + vector iterator arithmetic
 	friend vector_const_iterator operator+(int off, vector_const_iterator& vec)
 	{
 		return (vector_const_iterator(off + vec._ptr));
@@ -138,32 +138,32 @@ public:
 	}
 
 	/*  Comparison operators */
-	bool	operator==(vector_const_iterator& vec)
+	bool	operator==(const vector_const_iterator& vec) const
 	{
 		return (_ptr == vec._ptr);
 	}
 
-	bool	operator!=(vector_const_iterator& vec)
+	bool	operator!=(const vector_const_iterator& vec) const
 	{
 		return (_ptr != vec._ptr);
 	}
 
-	bool	operator>=(vector_const_iterator& vec)
+	bool	operator>=(const vector_const_iterator& vec) const
 	{
 		return (_ptr >= vec._ptr);
 	}
 
-	bool	operator<=(vector_const_iterator& vec)
+	bool	operator<=(const vector_const_iterator& vec) const
 	{
 		return (_ptr <= vec._ptr);
 	}
 
-	bool	operator>(vector_const_iterator& vec)
+	bool	operator>(const vector_const_iterator& vec) const
 	{
 		return (_ptr > vec._ptr);
 	}
 
-	bool	operator<(vector_const_iterator& vec)
+	bool	operator<(const vector_const_iterator& vec) const
 	{
 		return (_ptr < vec._ptr);
 	}
@@ -257,8 +257,7 @@ public:
 	vector_iterator	&operator-=(int off)
 	{
 		this->_ptr -= off;
-		return (*this);
-	}
+		return (*this); }
 
 	vector_iterator operator+(int off) const
 	{
@@ -279,8 +278,8 @@ public:
 	{
 		return (vector_iterator(off - vec._ptr));
 	}
-
 };
+
 	/*										 Vector class
  	*
  	*/
@@ -299,6 +298,7 @@ public:
 	typedef size_t					size_type;
 	typedef T						value_type;
 	typedef T*						pointer;
+	typedef pointer					difference_type;
 	typedef T&						reference;
 	typedef const T& 				const_reference;
 	typedef	Alloc					allocator_type;
@@ -306,49 +306,76 @@ public:
 public:
 
 	/*   CONSTRUCTORS  */	
+
 	vector(void)
-		: _m_capacity(0), _m_size(0)
+		: m_start(0), m_capacity(0), m_size(0), m_alloc()
 	{
 	}
 
-	vector(size_t n)
-		: _m_capacity(n), _m_size(0)
+	explicit vector(const allocator_type& alloc)
+		: m_start(0), m_capacity(0), m_size(0), m_alloc(alloc)
 	{
+	}
+
+	explicit vector(size_t n, const allocator_type& alloc = allocator_type())
+		: m_start(0), m_capacity(0), m_size(0), m_alloc(alloc)
+	{
+		this->resize(n);
+	}
+
+	explicit vector(size_t n, const value_type& val, const allocator_type& alloc = allocator_type())
+		: m_start(0), m_capacity(0), m_size(0), m_alloc(alloc)
+	{
+		this->resize(n, val);
+	}
+
+	template<class Init>
+	vector(Init first, Init last, const allocator_type& alloc = allocator_type())
+		: m_start(0), m_capacity(0), m_size(0), m_alloc(alloc)
+	{
+		this->assign(first, last);
+	}
+
+	vector(const vector& other)
+		: m_start(0), m_capacity(0), m_size(0), m_alloc()
+	{
+		*this = other;
 	}
 
 	/*   DESTRUCTOR  */
 	~vector(void)
 	{
+		for (iterator it = this->begin(); it != this->end(); ++it)
+			m_alloc.destroy(&(*it));
+		m_alloc.deallocate(&(*this->begin()), this->m_capacity);
 	}
 
 	/*   VECTOR OPERATORS OVERLOAD  */
-	vector&	operator=(vector &cpy)
+	vector&	operator=(const vector &cpy)
 	{
-		_m_capacity = cpy._m_capacity;
-		_m_size = cpy._m_size;
-		_m_start = cpy._m_start;
+		this->assign(cpy.begin(), cpy.end());
 		return (*this);
 	}
 
 	/*   ITERATORS FUNCTIONS  */	
 	iterator	begin(void)
 	{
-		return (iterator(_m_start));
+		return (iterator(m_start));
 	}
 
 	const_iterator	begin(void) const
 	{
-		return (const_iterator(_m_start));
+		return (const_iterator(m_start));
 	}
 
 	iterator	end(void)
 	{
-		return (iterator(_m_start + _m_size));
+		return (iterator(this->m_start + this->m_size));
 	}
 
 	const_iterator	end(void) const
 	{
-		return (const_iterator(_m_start + _m_size));
+		return (const_iterator(m_start + m_size));
 	}
 
 	reverse_iterator	rbegin(void)
@@ -394,100 +421,109 @@ public:
 	/*   CAPACITY FUNCTIONS  */
 	size_type	size(void) const
 	{
-		return (this->_m_size);
+		return (this->m_size);
 	}
 
 	size_type	max_size(void) const
 	{
-	//	return (allocator_traits_type::max_size(this->alloc()));
-	//	return max possible size of vector(see alloc fct)
-		return (this->_m_size);
+		return (this->m_alloc.max_size());
 	}
 
 	void	resize(size_type new_size)
 	{
 		if (new_size < this->size())
-			//erase elements start + new size to end
-			;
-		else
-			//reserve new_size
-			;
+			this->erase(iterator(this->m_start + new_size), iterator(this->m_start + this->m_size));
+		else if (new_size > this->m_capacity)
+		{
+			if (this->m_size << 1 > new_size)
+				this->reserve(this->m_size << 1);
+			else
+				this->reserve(new_size);
+			this->priv_insert_default_constructs(new_size - this->m_size);
+		}
 	}
 
 	void	resize(size_type new_size, const T& val)
 	{
 		if (new_size < this->size())
-			//erase elements start + new size to end
-			;
-		else
-			//insert x from finish up to new_size - m_size elements
-			;
+			this->erase(iterator(this->m_start + new_size), iterator(this->m_start + this->m_size));
+		else if (new_size > this->m_size)
+		{
+			if (new_size > this->m_capacity)
+				this->reserve(new_size);
+			this->priv_insert_copy_construct(this->end(), new_size - this->m_size, val);
+		}
 	}
 
 	size_type	capacity(void)
 	{
-		return (this->_m_capacity);
+		return (this->m_capacity);
 	}
 
 	bool	empty(void)
 	{
-		return (this->_m_size == 0);
+		return (this->m_size == 0);
 	}
 
 	void	reserve(size_type new_cap)
 	{
-		if (this->_m_capacity < new_cap)
-			// realloc memory or expand buffer/ + modify members
-			;
-		// not sure if it has to do something in the other case ...
+		if (this->m_capacity < new_cap)
+		{
+			pointer new_start = m_alloc.allocate(new_cap, this->m_start);
+			for (size_type i = 0; i < this->m_size; i++)
+				m_alloc.construct(&(*(new_start + i)), *(this->m_start + i));
+			for (size_type i = 0; i < this->m_size; i++)
+				m_alloc.destroy(&(*(this->m_start + i)));
+			if (this->m_start)
+				m_alloc.deallocate(this->m_start, this->m_capacity);
+			this->m_capacity = new_cap;
+			this->m_start = new_start;
+		}
 	}
 
-	void	shrink_to_fit(void)
-	{
-		//c++11
-	}
-	
 	/*   ELEMENT ACCESS  */
 	reference	operator[](size_type n)
 	{
-		return (this->_m_start[n]);
+		return (this->m_start[n]);
 	}
 
 	const_reference	operator[](size_type n) const
 	{
-		return (this->_m_start[n]);
+		return (this->m_start[n]);
 	}
 
 	reference	at(size_type n)
 	{
-		// only if in range
-		return (this->_m_start[n];
+		if (n >= this->m_size)
+			throw vector::OutOfRangeException();
+		return (this->m_start[n]);
 	}
 
 	const_reference	at(size_type n) const
 	{
-		// only if in range
-		return (this->_m_start[n];
+		if (n >= this->m_size)
+			throw vector::OutOfRangeException();
+		return (this->m_start[n]);
 	}
 
 	reference	front(void)
 	{
-		return (*this->_m_start);
+		return (*this->m_start);
 	}
 
 	const_reference	front(void) const
 	{
-		return (*this->_m_start);
+		return (*this->m_start);
 	}
 
 	reference	back(void)
 	{
-		return (this->_m_start[this->_m_size -1]);
+		return (this->m_start[this->m_size -1]);
 	}
 
 	const_reference	back(void) const
 	{
-		return (this->_m_start[this->_m_size -1]);
+		return (this->m_start[this->m_size -1]);
 	}
 
 	void	data(void)
@@ -496,69 +532,186 @@ public:
 	}
 
 	/*   MODIFIERS  */
-	template<class InIt>
-	void	assign(InIt first, InIt last)
+	template<class Init>
+	void	assign(Init first, Init last)
 	{
-		iterator	it = this->begin();
-		for (; it != this->end() && first != last; it++, first++)
-			*it = *first;
-		if (first == last)
-			// erase all the other elements of this
-			;
+		size_type	n = vector::priv_distance(first, last);
+		if (n > this->m_size)
+		{
+			this->erase(this->begin(), this->end());
+			this->reserve(n);
+			this->insert(this->begin(), first, last);
+		}
 		else
-			// insert all reminding elements from first to last
-			;
+		{
+			iterator	beg = this->begin();
+			for (iterator it(&(*first)); it != iterator(&(*last)); ++it, ++beg)
+				*beg = *it;
+			this->erase(beg, this->end());
+		}
 	}
 
-	void assign (size_type n, const value_type& val)
+	void assign(size_type n, const value_type& val)
 	{
-		for (; n < this->_m_size; --n)
-			*it = val;
+		if (n > this->m_size)
+		{
+			this->erase(this->begin(), this->end());
+			this->reserve(n);
+			this->insert(this->begin(), n, val);
+		}
+		else
+		{
+			iterator	beg = this->begin();
+			for (; n != 0; --n)
+				*beg = val;
+			this->erase(beg, this->end());
+		}
 	}
 
-	void	push_back(void)
+	void	push_back(const value_type& val)
 	{
+		this->resize(this->m_size + 1, val);
 	}
 
 	void	pop_back(void)
 	{
+		this->m_alloc.destroy(&(*(this->end() - 1)));
+		--this->m_size;
 	}
 
-	void	insert(void)
+	iterator	insert(iterator pos, const T& x)
 	{
+		this->insert(pos, 1, x);
+		return (pos);
 	}
 
-	void	erase(void)
+	void	insert(iterator pos, size_type n, const T& x)
 	{
+		if (this->m_size + n > this->m_capacity)
+			this->reserve(this->m_size + n);
+		if (this->m_size)
+		{
+			for (size_type i = n; i != 0; --i)
+				m_alloc.construct(&(*(this->end() + i)), *(pos + i));
+			for (size_type i = n; i != 0; --i)
+				m_alloc.destroy(&(*(pos + i)));
+		}
+		priv_insert_copy_construct(pos, n, x);
 	}
 
-	void	swap(void)
+	template<class Init>
+	void	insert(iterator pos, Init first, Init last)
 	{
+		size_type	n = vector::priv_distance(first, last);
+		if (this->m_size + n > this->m_capacity)
+			this->reserve(this->m_size + n);
+		if (this->m_size)
+		{
+			for (size_type i = n; i != 0; --i)
+				m_alloc.construct(&(*(this->end() + i)), *(pos + i));
+			for (size_type i = n; i != 0; --i)
+				m_alloc.destroy(&(*(pos + i)));
+		}
+		priv_insert_copy_range_construct(pos, first, last);
+	}
+
+	iterator	erase(iterator pos)
+	{
+		this->erase(pos, pos + 1);
+		return (pos);
+	}
+
+	iterator	erase(iterator first, iterator last)
+	{
+		if (first != last)
+		{
+			iterator	it;
+			iterator	it2;
+			size_type	erased = 0;
+			for (it = first; it != last; ++it, ++erased)
+				this->m_alloc.destroy(&(*it));
+			for (it = first, it2 = last; it2 != this->end(); ++it2, ++it)
+				*it = *it2;
+			this->m_size -= erased;
+		}
+		return (first);
+	}
+
+	void	swap(vector& x)
+	{
+		vector	vec;
+
+		vec = *this;
+		*this = x;
+		x = vec;
 	}
 
 	void	clear(void)
 	{
-	}
-
-	void	emplace(void)
-	{
-	}
-
-	void	emplace_back(void)
-	{
+		for (iterator it = this->begin(); it != this->end(); ++it)
+			this->m_alloc.destroy(it);
+		this->m_size = 0;
 	}
 
 private:
 
-	pointer	_m_start; 
-	size_t	_m_capacity; // size malloced
-	size_t	_m_size; // size of the array, x elements
-	//max size : max possible size of the array
+	template<class Init>
+	void	priv_insert_copy_range_construct(iterator pos, Init first, Init last)
+	{
+		size_type	n = vector::priv_distance(first, last);
+
+		this->m_size += n;
+		for (iterator it(&(*first)); it != iterator(&(*last)); ++it, ++pos)
+			m_alloc.construct(&(*pos), *it);
+	}
+
+	void	priv_insert_default_constructs(size_type n)
+	{
+		this->m_size += n;
+		for (iterator from = this->end() - 1; n != 0; --n, --from)
+			m_alloc.construct(&(*from));
+	}
+
+	void	priv_insert_copy_construct(iterator pos, size_type n, const value_type& val)
+	{
+		this->m_size += n;
+		for (; n != 0; --n, ++pos)
+			m_alloc.construct(&(*pos), val);
+	}
+
+	template<class Init>
+	static size_type priv_distance(Init first, Init last)
+	{
+		size_type	n = 0;
+		iterator	it(&(*first));
+		iterator	it2(&(*last));
+		for (; it != it2; ++it, ++n)
+			;
+		return (n);
+	}
+
+private:
+
+	class	OutOfRangeException : public std::out_of_range
+	{
+	public :
+		OutOfRangeException()
+			: std::out_of_range("Ft::vector : Index out of bounds") {}
+	};
+
+private:
+
+	pointer		m_start; 
+	size_t		m_capacity;
+	size_t		m_size;
+	Alloc		m_alloc;
 
 }; /* End of vector class */
 
+	/*   				NON_MEMBER FUNCTIONS OVERLOADS (relational operators + swap)  */
 
 
-}; /* End of namespace ft */
+
+} /* End of namespace ft */
 
 #endif
