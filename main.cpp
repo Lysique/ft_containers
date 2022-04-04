@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 13:13:12 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/04 14:03:00 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/04 15:00:47 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "containers/pair.hpp"
 #include "containers/iterator_traits.hpp"
 #include "containers/reverse_iterator.hpp"
-//#include "containers/is_integral.hpp"
+#include "containers/is_integral.hpp"
 #include "containers/equal.hpp"
 #include "containers/enable_if.hpp"
 
@@ -62,30 +62,7 @@ int	main(void)
 	using namespace ft;
 	try
 	{
-		std::cout << "-----Operator= / Copy Constructor-----\n\n";
-		test	t;
-		t = 2;
-		test	t2;
-		t2 = 4;
-		vector<test>		vec2(3, t);
-		vector<test>		vec(vec2);
-		vector<test>		vec3(4, t2);
-		vec2 = vec3;
-		std::cout << "\nSize :\n";
-		std::cout << "vec : " << vec.size() << std::endl;
-		std::cout << "\nCapacity :\n";
-		std::cout << "vec : " << vec.capacity() << std::endl;
-		std::cout << "\nMaxsize :\n";
-		std::cout << "vec : " << vec.max_size() << std::endl;
-		std::cout << std::endl;
-		std::cout << "Vec iteration :\n";
-		for (vector<test>::iterator it = vec.begin(); it != vec.end(); ++it)
-			std::cout << *it << " ";
-		std::cout << std::endl;
-		std::cout << "Vec3 iteration :\n";
-		for (vector<test>::iterator it = vec3.begin(); it != vec3.end(); ++it)
-			std::cout << *it << " ";
-		std::cout << std::endl;
+		std::cout << is_integral<int>::value << std::endl;
 	}
 	catch (std::exception &e)
 	{
