@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 13:13:12 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/04 10:34:38 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/04 11:05:07 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 //#include "containers/reverse_iterator.hpp"
 //#include "containers/is_integral.hpp"
 //#include "containers/equal.hpp"
-//#include "containers/enable_if.hpp"
+#include "containers/enable_if.hpp"
 
 class test
 {
@@ -43,14 +43,12 @@ public:
 		x = i;
 		return (*this);
 	}
-	/*
 	test&	operator=(const test& t)
 	{
 		std::cout << "Copy assign\n";
 		x = t.x;
 		return (*this);
 	}
-	*/
 	int	x;
 };
 
