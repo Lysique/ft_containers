@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 13:11:50 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/04 15:56:06 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/05 12:14:39 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 # define VECTOR_HPP
 
 #include "iterator_traits.hpp"
+#include "reverse_iterator.hpp"
+#include "equal.hpp"
+#include "lexicographical_compare.hpp"
 #include <iostream>
 
 namespace ft
@@ -292,17 +295,18 @@ class vector
 	/*  TYPEDEFS */
 public:
 
-	typedef vector_iterator<T>					iterator;
-	typedef const_vector_iterator<T>			const_iterator;
-	typedef reverse_iterator<iterator>			reverse_iterator;
-	typedef reverse_iterator<const_iterator>	const_reverse_iterator;
-	typedef size_t								size_type;
-	typedef T									value_type;
-	typedef T*									pointer;
-	typedef pointer								difference_type;
-	typedef T&									reference;
-	typedef const T& 							const_reference;
-	typedef	Alloc								allocator_type;
+	typedef vector_iterator<T>						iterator;
+	typedef vector_const_iterator<T>				const_iterator;
+	typedef ft::reverse_iterator<iterator>			reverse_iterator;
+	typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;
+	typedef size_t									size_type;
+	typedef T										value_type;
+	typedef T*										pointer;
+	typedef const T*								const_pointer;
+	typedef ptrdiff_t								difference_type;
+	typedef T&										reference;
+	typedef const T& 								const_reference;
+	typedef	Alloc									allocator_type;
 
 public:
 
@@ -358,6 +362,13 @@ public:
 		return (*this);
 	}
 
+	/*   GET_ALLOC  */
+
+	allocator_type	get_allocator(void) const
+	{
+		return (this->alloc);
+	}
+
 	/*   ITERATORS FUNCTIONS  */	
 	iterator	begin(void)
 	{
@@ -399,26 +410,6 @@ public:
 		return (const_reverse_iterator(this->begin()));
 	}
 
-	const_iterator	cbegin(void)
-	{
-		return (const_iterator(this->begin()));
-	}
-
-	const_iterator	cend(void)
-	{
-		return (const_iterator(this->end()));
-	}
-
-	const_reverse_iterator	crbegin(void)
-	{
-		return (const_reverse_iterator(this->end()));
-	}
-
-	const_reverse_iterator	crend(void)
-	{
-		return (const_reverse_iterator(this->begin()));
-	}
-
 	/*   CAPACITY FUNCTIONS  */
 	size_type	size(void) const
 	{
@@ -430,38 +421,12 @@ public:
 		return (this->m_alloc.max_size());
 	}
 
-	void	resize(size_type new_size)
-	{
-		if (new_size < this->size())
-			this->erase(iterator(this->m_start + new_size), iterator(this->m_start + this->m_size));
-		else if (new_size > this->m_capacity)
-		{
-			if (this->m_size << 1 > new_size)
-				this->reserve(this->m_size << 1);
-			else
-				this->reserve(new_size);
-			this->priv_insert_default_constructs(new_size - this->m_size);
-		}
-	}
-
-	void	resize(size_type new_size, const T& val)
-	{
-		if (new_size < this->size())
-			this->erase(iterator(this->m_start + new_size), iterator(this->m_start + this->m_size));
-		else if (new_size > this->m_size)
-		{
-			if (new_size > this->m_capacity)
-				this->reserve(new_size);
-			this->priv_insert_copy_construct(this->end(), new_size - this->m_size, val);
-		}
-	}
-
-	size_type	capacity(void)
+	size_type	capacity(void) const
 	{
 		return (this->m_capacity);
 	}
 
-	bool	empty(void)
+	bool	empty(void) const
 	{
 		return (this->m_size == 0);
 	}
@@ -527,12 +492,44 @@ public:
 		return (this->m_start[this->m_size -1]);
 	}
 
-	void	data(void)
+	pointer	data(void)
 	{
-		//c++11
+		return (&(*this->m_start));
+	}
+
+	const_pointer	data(void) const
+	{
+		return (&(*this->m_start));
 	}
 
 	/*   MODIFIERS  */
+
+	void	resize(size_type new_size)
+	{
+		if (new_size < this->size())
+			this->erase(iterator(this->m_start + new_size), iterator(this->m_start + this->m_size));
+		else if (new_size > this->m_capacity)
+		{
+			if (this->m_size << 1 > new_size)
+				this->reserve(this->m_size << 1);
+			else
+				this->reserve(new_size);
+			this->priv_insert_default_constructs(new_size - this->m_size);
+		}
+	}
+
+	void	resize(size_type new_size, const value_type& val)
+	{
+		if (new_size < this->size())
+			this->erase(iterator(this->m_start + new_size), iterator(this->m_start + this->m_size));
+		else if (new_size > this->m_size)
+		{
+			if (new_size > this->m_capacity)
+				this->reserve(new_size);
+			this->priv_insert_copy_construct(this->end(), new_size - this->m_size, val);
+		}
+	}
+
 	template<class Init>
 	void	assign(Init first, Init last)
 	{
@@ -546,8 +543,8 @@ public:
 		else
 		{
 			iterator	beg = this->begin();
-			for (iterator it(&(*first)); it != iterator(&(*last)); ++it, ++beg)
-				*beg = *it;
+			for (; first != last; ++first, ++beg)
+				*beg = *first;
 			this->erase(beg, this->end());
 		}
 	}
@@ -662,8 +659,8 @@ private:
 		size_type	n = vector::priv_distance(first, last);
 
 		this->m_size += n;
-		for (iterator it(&(*first)); it != iterator(&(*last)); ++it, ++pos)
-			m_alloc.construct(&(*pos), *it);
+		for (; first != last; ++first, ++pos)
+			m_alloc.construct(&(*pos), *first);
 	}
 
 	void	priv_insert_default_constructs(size_type n)
@@ -684,9 +681,7 @@ private:
 	static size_type priv_distance(Init first, Init last)
 	{
 		size_type	n = 0;
-		iterator	it(&(*first));
-		iterator	it2(&(*last));
-		for (; it != it2; ++it, ++n)
+		for (; first != last; ++first, ++n)
 			;
 		return (n);
 	}
@@ -709,9 +704,48 @@ private:
 
 }; /* End of vector class */
 
-	/*   				NON_MEMBER FUNCTIONS OVERLOADS (relational operators + swap)  */
+	/*	NON-MEMBER FUNCTIONS*/
+template<class T, class Alloc>
+bool	operator==(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
+{
+	return (ft::equal(lhs.begin(), lhs.end(), rhs.begin()));
+}
 
+template<class T, class Alloc>
+bool	operator!=(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
+{
+	return (!(lhs == rhs));
+}
 
+template<class T, class Alloc>
+bool	operator>=(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
+{
+	return (!(lhs < rhs));
+}
+
+template<class T, class Alloc>
+bool	operator<=(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
+{
+	return (!(lhs > rhs));
+}
+
+template<class T, class Alloc>
+bool	operator>(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
+{
+	return (!(lhs >= rhs));
+}
+
+template<class T, class Alloc>
+bool	operator<(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
+{
+	return (lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
+}
+
+template<class T, class Alloc>
+void	swap(vector<T, Alloc>& lhs, vector<T, Alloc>& rhs)
+{
+	lhs.swap(rhs);
+}
 
 } /* End of namespace ft */
 

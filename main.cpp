@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 13:13:12 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/04 15:00:47 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/05 11:36:39 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,9 @@ int	main(void)
 	using namespace ft;
 	try
 	{
-		std::cout << is_integral<int>::value << std::endl;
+		vector<test>	vec;
+
+		vec.resize(2);
 	}
 	catch (std::exception &e)
 	{
