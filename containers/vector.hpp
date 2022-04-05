@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 13:11:50 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/05 13:08:25 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/05 15:42:43 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -512,10 +512,13 @@ public:
 			this->erase(iterator(this->m_start + new_size), iterator(this->m_start + this->m_size));
 		else if (new_size > this->m_capacity)
 		{
-			if (this->m_size << 1 > new_size)
-				this->reserve(this->m_size << 1);
-			else
-				this->reserve(new_size);
+			if (new_size > this->m_capacity)
+			{
+				if (this->m_capacity << 1 > new_size)
+					this->reserve(this->m_capacity << 1);
+				else
+					this->reserve(new_size);
+			}
 			this->priv_insert_default_constructs(new_size - this->m_size);
 		}
 	}
@@ -527,7 +530,12 @@ public:
 		else if (new_size > this->m_size)
 		{
 			if (new_size > this->m_capacity)
-				this->reserve(new_size);
+			{
+				if (this->m_capacity << 1 > new_size)
+					this->reserve(this->m_capacity << 1);
+				else
+					this->reserve(new_size);
+			}
 			this->priv_insert_copy_construct(this->end(), new_size - this->m_size, val);
 		}
 	}
@@ -562,7 +570,7 @@ public:
 		else
 		{
 			iterator	beg = this->begin();
-			for (; n != 0; --n)
+			for (; n != 0; --n, ++beg)
 				*beg = val;
 			this->erase(beg, this->end());
 		}
@@ -587,32 +595,49 @@ public:
 
 	void	insert(iterator pos, size_type n, const T& x)
 	{
+		size_type npos = 0;
+		if (this->m_size)
+			npos = vector::priv_distance(this->begin(), pos);
 		if (this->m_size + n > this->m_capacity)
-			this->reserve(this->m_size + n);
+		{
+			if (this->m_capacity << 1 > this->m_size + n)
+				this->reserve(this->m_capacity << 1);
+			else
+				this->reserve(this->m_size + n);
+		}
 		if (this->m_size)
 		{
-			for (size_type i = n; i != 0; --i)
-				m_alloc.construct(&(*(this->end() + i)), *(pos + i));
-			for (size_type i = n; i != 0; --i)
-				m_alloc.destroy(&(*(pos + i)));
+			for (size_type i = npos; this->begin() + i != this->end(); ++i)
+				m_alloc.construct(&(*(this->end() + i)), *(this->begin() + i));
+			for (size_type i = npos; this->begin() + i != this->end(); ++i)
+				m_alloc.destroy(&(*(this->begin() + i)));
+			priv_insert_copy_construct(pos, n, x);
 		}
-		priv_insert_copy_construct(pos, n, x);
+		else
+			priv_insert_copy_construct(this->begin(), n, x);
 	}
 
 	template<class Init>
-	void	insert(iterator pos, Init first, Init last)
+	typename ft::enable_if<!ft::is_integral<Init>::value >::type	insert(iterator pos, Init first, Init last)
 	{
 		size_type	n = vector::priv_distance(first, last);
 		if (this->m_size + n > this->m_capacity)
-			this->reserve(this->m_size + n);
+		{
+			if (this->m_capacity << 1 > this->m_size + n)
+				this->reserve(this->m_capacity << 1);
+			else
+				this->reserve(this->m_size + n);
+		}
 		if (this->m_size)
 		{
-			for (size_type i = n; i != 0; --i)
+			for (size_type i = 0; pos + i != this->end(); ++i)
 				m_alloc.construct(&(*(this->end() + i)), *(pos + i));
-			for (size_type i = n; i != 0; --i)
+			for (size_type i = 0; pos + i != this->end(); ++i)
 				m_alloc.destroy(&(*(pos + i)));
+			priv_insert_copy_range_construct(pos, first, last);
 		}
-		priv_insert_copy_range_construct(pos, first, last);
+		else
+			priv_insert_copy_range_construct(this->begin(), first, last);
 	}
 
 	iterator	erase(iterator pos)
