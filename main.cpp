@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 13:13:12 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/05 11:36:39 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/05 12:29:19 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,42 +19,12 @@
 #include "containers/equal.hpp"
 #include "containers/enable_if.hpp"
 
-class test
+template<class Cont>
+void	print_cont(Cont &cont)
 {
-public:
-	test()
-	{
-		std::cout << "Class created\n";
-		x = 0;
-	}
-	test(const test& t)
-	{
-		std::cout << "Copy created\n";
-		x = t.x;
-	}
-	~test()
-	{
-		std::cout << "Class destructed\n";
-	}
-	test&	operator=(int i)
-	{
-		std::cout << "Int assign\n";
-		x = i;
-		return (*this);
-	}
-	test&	operator=(const test& t)
-	{
-		std::cout << "Copy assign\n";
-		x = t.x;
-		return (*this);
-	}
-	int	x;
-};
-
-std::ostream	&operator<<(std::ostream &ostr, test const &test)
-{
-	ostr << test.x;
-	return (ostr);
+	for (typename Cont::iterator it = cont.begin(); it != cont.end(); ++it)
+		std::cout << *it << " ";
+	std::cout << std::endl;
 }
 
 int	main(void)
@@ -62,29 +32,14 @@ int	main(void)
 	using namespace ft;
 	try
 	{
-		vector<test>	vec;
-
-		vec.resize(2);
-	}
-	catch (std::exception &e)
-	{
-		std::cout << e.what() << std::endl;
-	}
-}
-
-int	main2(void)
-{
-	using namespace ft;
-	try
-	{
 		std::cout << "---------------------Std Vector------------------\n\n";
 		std::cout << "-----Default Constructor-----\n\n";
-		vector<test>	vec;
+		vector<int>	vec;
 		std::cout << "\nSize :\n";
 		std::cout << "vec : " << vec.size() << std::endl;
-		std::cout << "\nCapacity :\n";
+		std::cout << "Capacity :\n";
 		std::cout << "vec : " << vec.capacity() << std::endl;
-		std::cout << "\nMaxsize :\n";
+		std::cout << "Maxsize :\n";
 		std::cout << "vec : " << vec.max_size() << std::endl;
 	}
 	catch (std::exception &e)
@@ -94,17 +49,13 @@ int	main2(void)
 	try
 	{
 		std::cout << "-----Size Constructor-----\n\n";
-		vector<test>	vec(2);
-		std::cout << "\nSize :\n";
+		vector<int>	vec(2);
+		std::cout << "Size :\n";
 		std::cout << "vec : " << vec.size() << std::endl;
-		std::cout << "\nCapacity :\n";
+		std::cout << "Capacity :\n";
 		std::cout << "vec : " << vec.capacity() << std::endl;
-		std::cout << "\nMaxsize :\n";
-		std::cout << "vec : " << vec.max_size() << std::endl;
 		std::cout << std::endl;
-		for (vector<test>::iterator it = vec.begin(); it != vec.end(); ++it)
-			std::cout << *it << " ";
-		std::cout << std::endl;
+		print_cont(vec);
 	}
 	catch (std::exception &e)
 	{
@@ -113,20 +64,15 @@ int	main2(void)
 	try
 	{
 		std::cout << "-----Argument Constructor-----\n\n";
-		test	t;
+		int	t;
 		t = 2;
-		vector<test>	vec(3, t);
-		std::cout << "\nSize :\n";
+		vector<int>	vec(3, t);
+		std::cout << "Size :\n";
 		std::cout << "vec : " << vec.size() << std::endl;
-		std::cout << "\nCapacity :\n";
+		std::cout << "Capacity :\n";
 		std::cout << "vec : " << vec.capacity() << std::endl;
-		std::cout << "\nMaxsize :\n";
-		std::cout << "vec : " << vec.max_size() << std::endl;
 		std::cout << std::endl;
-		std::cout << "Vec iteration :\n";
-		for (vector<test>::iterator it = vec.begin(); it != vec.end(); ++it)
-			std::cout << *it << " ";
-		std::cout << std::endl;
+		print_cont(vec);
 	}
 	catch (std::exception &e)
 	{
@@ -135,21 +81,16 @@ int	main2(void)
 	try
 	{
 		std::cout << "-----Range Constructor-----\n\n";
-		test	t;
+		int	t;
 		t = 2;
-		std::vector<test>	vec2(3, t);
-		vector<test>		vec(vec2.begin(), vec2.end());
-		std::cout << "\nSize :\n";
+		std::vector<int>	vec2(3, t);
+		vector<int>		vec(vec2.begin(), vec2.end());
+		std::cout << "Size :\n";
 		std::cout << "vec : " << vec.size() << std::endl;
-		std::cout << "\nCapacity :\n";
+		std::cout << "Capacity :\n";
 		std::cout << "vec : " << vec.capacity() << std::endl;
-		std::cout << "\nMaxsize :\n";
-		std::cout << "vec : " << vec.max_size() << std::endl;
 		std::cout << std::endl;
-		std::cout << "Vec iteration :\n";
-		for (vector<test>::iterator it = vec.begin(); it != vec.end(); ++it)
-			std::cout << *it << " ";
-		std::cout << std::endl;
+		print_cont(vec);
 	}
 	catch (std::exception &e)
 	{
@@ -158,28 +99,21 @@ int	main2(void)
 	try
 	{
 		std::cout << "-----Operator= / Copy Constructor-----\n\n";
-		test	t;
+		int	t;
 		t = 2;
-		test	t2;
+		int	t2;
 		t2 = 4;
-		vector<test>		vec2(3, t);
-		vector<test>		vec(vec2);
-		vector<test>		vec3(4, t2);
-		std::cout << "\nSize :\n";
+		vector<int>		vec2(3, t);
+		vector<int>		vec(vec2);
+		vector<int>		vec3(4, t2);
+		std::cout << "Size :\n";
 		std::cout << "vec : " << vec.size() << std::endl;
-		std::cout << "\nCapacity :\n";
+		std::cout << "Capacity :\n";
 		std::cout << "vec : " << vec.capacity() << std::endl;
-		std::cout << "\nMaxsize :\n";
-		std::cout << "vec : " << vec.max_size() << std::endl;
-		std::cout << std::endl;
 		std::cout << "Vec iteration :\n";
-		for (vector<test>::iterator it = vec.begin(); it != vec.end(); ++it)
-			std::cout << *it << " ";
-		std::cout << std::endl;
+		print_cont(vec);
 		std::cout << "Vec3 iteration :\n";
-		for (vector<test>::iterator it = vec3.begin(); it != vec3.end(); ++it)
-			std::cout << *it << " ";
-		std::cout << std::endl;
+		print_cont(vec2);
 	}
 	catch (std::exception &e)
 	{

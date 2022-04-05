@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 13:11:50 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/05 12:14:39 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/05 13:08:25 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 #include "reverse_iterator.hpp"
 #include "equal.hpp"
 #include "lexicographical_compare.hpp"
+#include "is_integral.hpp"
+#include "enable_if.hpp"
 #include <iostream>
 
 namespace ft
@@ -531,7 +533,7 @@ public:
 	}
 
 	template<class Init>
-	void	assign(Init first, Init last)
+	typename ft::enable_if<!ft::is_integral<Init>::value >::type	assign(Init first, Init last)
 	{
 		size_type	n = vector::priv_distance(first, last);
 		if (n > this->m_size)
