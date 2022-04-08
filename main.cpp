@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 13:13:12 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/05 15:43:09 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/08 16:05:04 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ public:
 	}
 	MyClass(const MyClass &other)
 	{
-		//std::cout << "Copied\n";
+		std::cout << "Copied " << other.x << std::endl;
 		x = other.x;
 	}
 	MyClass(int n)
@@ -44,7 +44,7 @@ public:
 	}
 	MyClass	&operator=(const MyClass &assign)
 	{
-		std::cout << "Assigned\n";
+		std::cout << "Assigned " << assign.x << std::endl;
 		x = assign.x;
 		return (*this);
 	}
@@ -73,10 +73,10 @@ void	print_cont(Cont &cont)
 
 int	main(void)
 {
-	using namespace ft;
+	using namespace ft;	
 	try
 	{
-		std::cout << "---------------------Std Vector------------------\n\n";
+		std::cout << "---------------------Vector------------------\n\n";
 		std::cout << "-----Default Constructor-----\n\n";
 		vector<int>	vec;
 		std::cout << "Size : "<< vec.size() << ", Capacity : " << 
@@ -180,19 +180,16 @@ int	main(void)
 		std::cout << "Size : "<< vec.size() << ", Capacity : " << vec.capacity() << std::endl;
 		print_cont(vec);
 		std::cout << "Insert :\n";
-		{
-			MyClass mc(5);
-			vector<MyClass>	vecx;
-			struct timeval now;
-			gettimeofday(&now, 0);
-			time_t msec = now.tv_sec * 1000 + now.tv_usec / 1000;
-			for (int i = 0; i < 5; ++i)
-				vecx.insert(vecx.begin(), mc);
-			gettimeofday(&now, 0);
-			time_t msec2 = now.tv_sec * 1000 + now.tv_usec / 1000;
-			std::cout << "Time taken : " << msec2 - msec << std::endl;
-			std::cout << "Size : "<< vec.size() << ", Capacity : " << vec.capacity() << std::endl;
-		}
+		vec.insert(vec.begin() + 2, 3, 2);
+		std::cout << "Size : "<< vec.size() << ", Capacity : " << vec.capacity() << std::endl;
+		print_cont(vec);
+		vec.insert(vec.begin() + 2, vec.begin(), vec.end());
+		std::cout << "Size : "<< vec.size() << ", Capacity : " << vec.capacity() << std::endl;
+		print_cont(vec);
+		std::cout << "Erase :\n";
+		vec.erase(vec.begin(), vec.end() - 3);
+		std::cout << "Size : "<< vec.size() << ", Capacity : " << vec.capacity() << std::endl;
+		print_cont(vec);
 	}
 	catch (std::exception &e)
 	{

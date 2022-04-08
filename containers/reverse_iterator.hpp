@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/04 11:07:11 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/04 15:40:48 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/07 14:38:35 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include "iterator_traits.hpp"
 #include "enable_if.hpp"
+#include "vector.hpp"
 
 namespace ft
 {
