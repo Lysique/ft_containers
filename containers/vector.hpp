@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 13:11:50 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/08 16:01:33 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/09 09:52:25 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -358,7 +358,7 @@ public:
 		m_alloc.deallocate(&(*this->begin()), this->m_capacity);
 	}
 
-	/*   VECTOR OPERATORS OVERLOAD  */
+	/*   VECTOR OPERATOR= */
 	vector&	operator=(const vector &cpy)
 	{
 		this->assign(cpy.begin(), cpy.end());
