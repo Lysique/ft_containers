@@ -6,12 +6,12 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/09 11:05:11 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/09 14:00:13 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/11 15:48:15 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "containers/vector.hpp"
-#include <vector>
+#include "containers/map.hpp"
+#include <map>
 #include "containers/pair.hpp"
 #include "containers/iterator_traits.hpp"
 #include "containers/reverse_iterator.hpp"
@@ -73,5 +73,28 @@ void	print_cont(Cont &cont)
 
 int	main(void)
 {
-	using namespace ft;
+	{
+		using namespace std;
+
+		map<std::string, int>	m;
+		map<std::string, int>::iterator	it;
+		m.insert(std::make_pair<std::string, int>("Ola", 5));
+		m.insert(std::make_pair<std::string, int>("Ela", 6));
+		it = m.begin();
+		std::cout << (*it).first << std::endl;
+		//std::cout << m.max_size() << std::endl;
+		//std::cout << m.get_allocator().max_size() << std::endl;
+	}
+	{
+		using namespace ft;
+
+		map<std::string, int>	m;
+		map<std::string, int>::iterator	it;
+		m.insert(ft::make_pair<std::string, int>("Ola", 5));
+		m.insert(ft::make_pair<std::string, int>("Ela", 6));
+		it = m.begin();
+		std::cout << (*it).first << std::endl;
+		//std::cout << m.max_size() << std::endl;
+		//std::cout << m.get_allocator().max_size() << std::endl;
+	}
 }

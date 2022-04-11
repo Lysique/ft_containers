@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/04 13:40:23 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/04 14:03:08 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/11 15:01:40 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ struct pair
 	pair(void)
 		: first(), second()
 	{
-		//ENABLE_IF_CONSTRUCTIBLE
 	}
 
 	pair(const pair& cpy)
@@ -37,20 +36,17 @@ struct pair
 	pair(const first_type& ft, const second_type& sc)
 		: first(ft), second(sc)
 	{
-		//ENABLE_IF
 	}
 
 	template<class U1, class U2>
 	pair(const pair<U1, U2>& p)
 		: first(p.first), second(p.second)
 	{
-		//ENABLE_IF
 	}
 
 	/*   OPERATOR =  */
 	pair&	operator=(const pair& other)
 	{
-		//ENABLE_IF_ASSIGNABLE
 		first = other.first;
 		second = other.second;
 		return (*this);
@@ -62,9 +58,9 @@ struct pair
 
 	/*   NON-MEMBER FUNCTIONS  */
 template<class T1, class T2>
-ft::pair<T1, T2>	make_pair(T1 first, T2 second)
+pair<T1, T2>	make_pair(T1 first, T2 second)
 {
-	return (ft::pair<T1, T2>(first, second));
+	return (pair<T1, T2>(first, second));
 }
 
 template<class T1, class T2>

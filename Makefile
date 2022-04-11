@@ -6,7 +6,7 @@
 #    By: tamighi <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/30 11:14:33 by tamighi           #+#    #+#              #
-#    Updated: 2022/04/07 11:22:36 by tamighi          ###   ########.fr        #
+#    Updated: 2022/04/11 11:50:00 by tamighi          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ OBJ_DIR = objs/
 
 FILES = main.cpp
 F_DIR = ./
-HEADERS = iterator_traits.hpp vector.hpp
+HEADERS = iterator_traits.hpp map.hpp
 H_DIR = containers/
 
 SRCS = $(addprefix $(F_DIR), $(FILES))
