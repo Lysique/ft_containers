@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/09 09:32:12 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/09 10:25:51 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/09 12:30:36 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,11 @@ public:
 	explicit stack(const container_type& cont)
 		: c(cont)
 	{
+	}
+
+	stack (const stack& other)
+	{
+		*this = other;
 	}
 
 	/*   DESTRUCTOR  */
