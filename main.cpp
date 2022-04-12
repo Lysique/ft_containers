@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/09 11:05:11 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/11 15:48:15 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/12 13:06:01 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,34 +67,58 @@ template<class Cont>
 void	print_cont(Cont &cont)
 {
 	for (typename Cont::iterator it = cont.begin(); it != cont.end(); ++it)
-		std::cout << *it << " ";
+		std::cout << it->first << " ";
 	std::cout << std::endl;
 }
 
 int	main(void)
 {
 	{
-		using namespace std;
+		using namespace ft;
 
-		map<std::string, int>	m;
-		map<std::string, int>::iterator	it;
-		m.insert(std::make_pair<std::string, int>("Ola", 5));
-		m.insert(std::make_pair<std::string, int>("Ela", 6));
-		it = m.begin();
-		std::cout << (*it).first << std::endl;
+		map<std::string, MyClass>	m;
+		MyClass	mc(5);
+		m.insert(ft::make_pair<std::string, MyClass>("opiou", 5));
+		m.insert(ft::make_pair<std::string, MyClass>("ipiou", 5));
+		//m.insert(ft::make_pair<std::string, MyClass>("Ola", 5));
+		//m.insert(ft::make_pair<std::string, MyClass>("pou", 2));
+		(void)m;
+		/*
+		map<std::string, MyClass>::iterator	it;
+		std::pair<map<std::string, MyClass>::iterator, bool>	te;
+		m.insert(std::make_pair<std::string, MyClass>("opiou", 6));
+		m.insert(std::make_pair<std::string, MyClass>("pou", 6));
+		m.insert(std::make_pair<std::string, MyClass>("Ola", 5));
+		m.insert(std::make_pair<std::string, MyClass>("Ela", 6));
+		m.insert(std::make_pair<std::string, MyClass>("ila", 6));
+		te = m.insert(std::make_pair<std::string, MyClass>("lili", 6));
+		std::cout << te.second << std::endl;
+		te = m.insert(std::make_pair<std::string, MyClass>("lili", 3));
+		std::cout << te.second << std::endl;
+		print_cont(m);
 		//std::cout << m.max_size() << std::endl;
 		//std::cout << m.get_allocator().max_size() << std::endl;
+		*/
 	}
+	/*
 	{
 		using namespace ft;
 
 		map<std::string, int>	m;
 		map<std::string, int>::iterator	it;
+		ft::pair<map<std::string, int>::iterator, bool>	te;
+		m.insert(ft::make_pair<std::string, int>("opiou", 6));
+		m.insert(ft::make_pair<std::string, int>("pou", 6));
 		m.insert(ft::make_pair<std::string, int>("Ola", 5));
 		m.insert(ft::make_pair<std::string, int>("Ela", 6));
-		it = m.begin();
-		std::cout << (*it).first << std::endl;
+		m.insert(ft::make_pair<std::string, int>("ila", 6));
+		te = m.insert(ft::make_pair<std::string, int>("lili", 6));
+		std::cout << te.second << std::endl;
+		te = m.insert(ft::make_pair<std::string, int>("lili", 3));
+		std::cout << te.second << std::endl;
+		print_cont(m);
 		//std::cout << m.max_size() << std::endl;
 		//std::cout << m.get_allocator().max_size() << std::endl;
 	}
+	*/
 }

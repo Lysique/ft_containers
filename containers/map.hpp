@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/09 11:05:49 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/11 15:52:48 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/12 13:24:29 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,14 @@ template<class Pointer>
 class map_const_iterator
 {
 	typedef typename ft::iterator_traits<Pointer>::pointer				pointer;
-	typedef typename ft::iterator_traits<Pointer>::value_type			node;
-	typedef typename node::value_type									value_type;
+	typedef typename ft::iterator_traits<Pointer>::value_type			value_type;
 	typedef typename ft::iterator_traits<Pointer>::difference_type		difference_type;
 	typedef typename ft::iterator_traits<Pointer>::iterator_category	iterator_category;
 	typedef typename ft::iterator_traits<Pointer>::reference			reference;
+
+	typedef typename value_type::value_type								value_pair;
+	typedef value_pair*													pointer_pair;
+	typedef value_pair&													reference_pair;
 
 public:
 
@@ -41,10 +44,69 @@ public:
 	{
 	}
 
+	~map_const_iterator(void)
+	{
+	}
+
 	/*   REFERENCES OPERATOR  */
-	value_type	operator*(void)
+	value_pair	operator*(void)
 	{
 		return (m_ptr->val);
+	}
+
+	const pointer_pair	operator->(void) const
+	{
+		return (&(m_ptr->val));
+	}
+	
+	/*   INCREMENT/DECREMENT  */
+
+	map_const_iterator&	operator++(void)
+	{
+		if (m_ptr->right)
+		{
+			m_ptr = m_ptr->right;
+			while (m_ptr->left != NULL)
+				m_ptr = m_ptr->left;
+		}
+		else
+		{
+			while (m_ptr->parent->right == m_ptr)
+				m_ptr = m_ptr->parent;
+			m_ptr = m_ptr->parent;
+		}
+		return (*this);
+	}
+
+	map_const_iterator&	operator++(int)
+	{
+		pointer	tmp = m_ptr;
+		++*this;
+		return (map_const_iterator(tmp));
+	}
+
+	map_const_iterator&	operator--(void)
+	{
+		if (m_ptr->left)
+		{
+			m_ptr = m_ptr->left;
+			while (m_ptr->right != NULL)
+				m_ptr = m_ptr->right;
+		}
+		else
+		{
+			while (m_ptr->parent->left == m_ptr)
+				m_ptr = m_ptr->parent;
+			m_ptr = m_ptr->parent;
+		}
+		return (*this);
+	}
+
+	map_const_iterator&	operator--(int)
+	{
+		pointer	tmp = m_ptr;
+		--*this;
+		return (map_const_iterator(tmp));
 	}
 
 	/*   OPERATOR=  */
@@ -54,8 +116,15 @@ public:
 		return (*this);
 	}
 
-	~map_const_iterator(void)
+	/*   COMPARISON OPERATORS  */
+	bool	operator==(const map_const_iterator& r) const
 	{
+		return (this->m_ptr == r.m_ptr);
+	}
+
+	bool	operator!=(const map_const_iterator& r) const
+	{
+		return (this->m_ptr != r.m_ptr);
 	}
 
 protected:
@@ -85,15 +154,15 @@ struct mapNode
 	typedef ft::pair<Key, T>	value_type;
 
 	mapNode(const value_type& value)
-		: color(0), val(value), parent(NULL), left(NULL), right(NULL)
+		: color(1), val(value), parent(NULL), left(NULL), right(NULL)
 	{
 	}
 
-	bool		color;
-	value_type	val;
-	mapNode		*parent;
-	mapNode		*left;
-	mapNode		*right;
+	bool				color;
+	const value_type&	val;
+	mapNode				*parent;
+	mapNode				*left;
+	mapNode				*right;
 };
 
 template<class Key, class T, class Compare = std::less<Key>, class Alloc = std::allocator<ft::pair<const Key, T> > >
@@ -129,24 +198,25 @@ public:
 
 	/*   CONSTRUCTORS  */
 	map(const allocator_type& alloc = allocator_type())
-		: m_node_alloc(), m_alloc(alloc), m_size(0), m_root(NULL), m_comp()
+		: m_node_alloc(), m_alloc(alloc), m_size(0), m_comp()
+		  , m_nil(priv_newNode()), m_begin(m_nil), m_last(m_nil), m_root(m_nil)
 	{
 	}
 
 	explicit map(const compare_type& comp, const allocator_type& alloc = allocator_type())
-		: m_node_alloc(), m_alloc(alloc), m_size(0), m_root(NULL), m_comp()
+		: m_node_alloc(), m_alloc(alloc), m_size(0), m_comp(comp)
+		  , m_nil(priv_newNode()), m_begin(m_nil), m_last(m_nil), m_root(m_nil)
 	{
-		(void)comp;
 	}
 
 	template<class Init>
 	map(Init first, Init last, const compare_type& comp = compare_type(),
 		const allocator_type& alloc = allocator_type())
-		: m_node_alloc(), m_alloc(alloc), m_size(0), m_root(NULL), m_comp()
+		: m_node_alloc(), m_alloc(alloc), m_size(0), m_comp(comp)
+		  , m_nil(priv_newNode()), m_begin(m_nil), m_last(m_nil), m_root(m_nil)
 	{
 		(void)first;
 		(void)last;
-		(void)comp;
 	}
 
 	map(const map& other)
@@ -162,65 +232,127 @@ public:
 	/*   ACCESSOR  */
 	T&	operator[](const Key& k)
 	{
-		return (priv_search(k));
+		(void)k;
+		return (m_root->value);
 	}
 	/*   ITERATORS  */
 	iterator	begin(void)
 	{
-		return (iterator(m_root));
+		return (iterator(m_begin));
+	}
+
+	iterator	end(void)
+	{
+		return (iterator(m_nil));
 	}
 
 	/*   MODIFIERS  */
 
 	ft::pair<iterator, bool>	insert(const value_type& value)
 	{
-		nodePtr	newNode = priv_newNode(value);
-		if (m_root == NULL)
-			m_root = newNode;
-		else
-			this->priv_insert(newNode, m_root);
-		return (ft::make_pair<iterator, bool>(iterator(newNode), true));
+		nodePtr	new_node = this->priv_newNode(value);
+		if (m_root == m_nil)
+		{
+			new_node->color = 0;
+			m_root = new_node;
+			m_begin = new_node;
+			m_last = new_node;
+			m_last->right = m_nil;
+			return (ft::make_pair<iterator, bool>(iterator(new_node), true));
+		}
+		ft::pair<iterator, bool>	mp = this->priv_insert(new_node, m_root);
+		if (mp.second == true)
+			this->priv_balance(new_node);
+		return (mp);
 	}
 
 private:
 
-	T&	priv_search(const Key& k)
+	void	priv_balance(nodePtr n)
 	{
-		nodePtr	it = m_root;
-	
-		while (it)
+		return ;
+		while (n->parent->color == 1)
 		{
-			if (it->val.first == k)
-				return (it);
-			else if (comp(it->val.first, k))
-				it = it->left;
+			nodePtr	gp = n->parent->parent;
+			if (n->parent == gp->left)
+			{
+				if (gp->right->color == 1)
+				{
+					gp->left->color = 0;
+					gp->right->color = 0;
+					gp->color = 1;
+					n = gp;
+				}
+				else if (n == n->parent->right)
+				{
+					n = n->parent;
+					//priv_left_rotate(n); // idk for order
+				}
+				else
+				{
+					n->parent->color = 0;
+					gp->color = 1;
+					//priv_right_rotate(gp);
+				}
+			}
 			else
-				it = it->right;
+			{
+				if (gp->left->color == 1)
+				{
+					gp->color = 0;
+					gp->right->color = 1;
+					gp->left->color = 1;
+					n = gp;
+				}
+				else if (n->parent->left == n)
+				{
+					n = n->parent;
+					//priv_right_rotate(n);
+				}
+				n->parent->color = 0;
+				gp->color = 1;
+				m_root->color = 0;
+			}
 		}
-		return (it);
+		if (n->parent->color == 0)
+			return ;
 	}
 
-	void	priv_insert(nodePtr new_node, nodePtr it)
+	ft::pair<iterator, bool>	priv_insert(nodePtr new_node, nodePtr it)
 	{
-		if (m_comp(new_node->val.first, it->val.first))
+		if (new_node->val.first == it->val.first)
+		{
+			this->m_node_alloc.deallocate(new_node, 1);
+			return (ft::make_pair<iterator, bool>(iterator(it), false));
+		}
+		else if (m_comp(new_node->val.first, it->val.first))
 		{
 			if (it->left == NULL)
 			{
 				it->left = new_node;
 				new_node->parent = it;
+				if (this->m_comp(new_node->val.first, this->m_begin->val.first))
+					this->m_begin = new_node;
+				return (ft::make_pair<iterator, bool>(iterator(new_node), true));
 			}
 			else
-				priv_insert(new_node, it->left);
+				return (this->priv_insert(new_node, it->left));
 		}
 		else
 		{
-			if (it->right == NULL)
+			if (it->right == NULL || it->right == m_nil)
 			{
 				it->right = new_node;
 				new_node->parent = it;
+				if (m_comp(this->m_last->val.first, new_node->val.first))
+				{
+					this->m_last = new_node;
+					new_node->right = m_nil;
+				}
+				return (ft::make_pair<iterator, bool>(iterator(new_node), true));
 			}
 			else
-				priv_insert(new_node, it->right);
+				return (this->priv_insert(new_node, it->right));
 		}
 	}
 
@@ -233,14 +365,26 @@ private:
 		return (new_node);
 	}
 
+	node*	priv_newNode(void)
+	{
+		node*	new_node = m_node_alloc.allocate(1);
+		new_node->left = NULL;
+		new_node->right = NULL;
+		return (new_node);
+	}
+
 	/*   MEMBER ATTRIBUTES  */
 private:
 
 	node_allocator_type	m_node_alloc;
 	allocator_type		m_alloc;
 	size_type			m_size;
-	nodePtr				m_root;
 	compare_type		m_comp;
+
+	nodePtr				m_nil;
+	nodePtr				m_begin;
+	nodePtr				m_last;
+	nodePtr				m_root;
 
 	/*   CLASS  */
 public:
