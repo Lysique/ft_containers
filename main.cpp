@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/09 11:05:11 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/12 13:06:01 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/13 15:45:20 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,16 +74,9 @@ void	print_cont(Cont &cont)
 int	main(void)
 {
 	{
-		using namespace ft;
+		using namespace std;
 
 		map<std::string, MyClass>	m;
-		MyClass	mc(5);
-		m.insert(ft::make_pair<std::string, MyClass>("opiou", 5));
-		m.insert(ft::make_pair<std::string, MyClass>("ipiou", 5));
-		//m.insert(ft::make_pair<std::string, MyClass>("Ola", 5));
-		//m.insert(ft::make_pair<std::string, MyClass>("pou", 2));
-		(void)m;
-		/*
 		map<std::string, MyClass>::iterator	it;
 		std::pair<map<std::string, MyClass>::iterator, bool>	te;
 		m.insert(std::make_pair<std::string, MyClass>("opiou", 6));
@@ -98,25 +91,22 @@ int	main(void)
 		print_cont(m);
 		//std::cout << m.max_size() << std::endl;
 		//std::cout << m.get_allocator().max_size() << std::endl;
-		*/
 	}
 	/*
 	{
 		using namespace ft;
 
-		map<std::string, int>	m;
-		map<std::string, int>::iterator	it;
-		ft::pair<map<std::string, int>::iterator, bool>	te;
-		m.insert(ft::make_pair<std::string, int>("opiou", 6));
-		m.insert(ft::make_pair<std::string, int>("pou", 6));
-		m.insert(ft::make_pair<std::string, int>("Ola", 5));
-		m.insert(ft::make_pair<std::string, int>("Ela", 6));
-		m.insert(ft::make_pair<std::string, int>("ila", 6));
-		te = m.insert(ft::make_pair<std::string, int>("lili", 6));
-		std::cout << te.second << std::endl;
-		te = m.insert(ft::make_pair<std::string, int>("lili", 3));
-		std::cout << te.second << std::endl;
-		print_cont(m);
+		map<int, int>	m;
+		m.insert(ft::make_pair<int, int>(0, 6));
+		m.insert(ft::make_pair<int, int>(1, 6));
+		m.insert(ft::make_pair<int, int>(2, 6));
+		m.insert(ft::make_pair<int, int>(3, 5));
+		m.insert(ft::make_pair<int, int>(4, 6));
+		m.insert(ft::make_pair<int, int>(5, 6));
+		m.insert(ft::make_pair<int, int>(6, 6));
+		m.insert(ft::make_pair<int, int>(8, 6));
+		m.insert(ft::make_pair<int, int>(9, 6));
+		//print_cont(m);
 		//std::cout << m.max_size() << std::endl;
 		//std::cout << m.get_allocator().max_size() << std::endl;
 	}
