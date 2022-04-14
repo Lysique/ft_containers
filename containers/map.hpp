@@ -21,23 +21,22 @@
 namespace ft
 {
 
-template<class Pointer>
+template<class T, class Node>
 class map_const_iterator
 {
 	/*   TYPE MEMBERS  */
 
 public:
-	typedef typename ft::iterator_traits<Pointer>::pointer				pointer;
-	typedef typename ft::iterator_traits<Pointer>::value_type			value_type;
-	typedef typename ft::iterator_traits<Pointer>::difference_type		difference_type;
-	typedef typename ft::iterator_traits<Pointer>::iterator_category	iterator_category;
-	typedef typename ft::iterator_traits<Pointer>::reference			reference;
+	typedef T	value_type;
+	typedef T*	pointer;
+	typedef T&	reference;
+	typedef const T*	const_pointer;
+	typedef std::random_access_iterator_tag	iterator_category;
 
-protected:
-	typedef typename value_type::value_type								value_pair;
-	typedef value_pair*													pointer_pair;
-	typedef value_pair&													reference_pair;
-	typedef const value_pair*											const_pointer_pair;
+	typedef Node	node;
+	typedef Node*	node_pointer;
+	typedef Node&	node_reference;
+	typedef const node*	node_const_pointer;
 
 	/*   FUNCTIONS MEMBERS  */
 
@@ -49,7 +48,7 @@ public:
 	{
 	}
 
-	explicit map_const_iterator(Pointer ptr)
+	explicit map_const_iterator(node_pointer ptr)
 		: m_ptr(ptr)
 	{
 	}
@@ -59,12 +58,12 @@ public:
 	}
 
 	/*   REFERENCES OPERATOR  */
-	value_pair	operator*(void)
+	value_type	operator*(void)
 	{
 		return (*m_ptr->val);
 	}
 
-	const_pointer_pair	operator->(void) const
+	const pointer	operator->(void) const
 	{
 		return (m_ptr->val);
 	}	
@@ -138,11 +137,11 @@ public:
 
 protected:
 
-	Pointer	m_ptr;
+	node_pointer	m_ptr;
 };
 
-template<class Pointer>
-class map_iterator : public map_const_iterator<Pointer>
+template<class Pointer, class Node>
+class map_iterator : public map_const_iterator<Pointer, Node>
 {
 public:
 
@@ -151,7 +150,7 @@ public:
 		this->m_ptr = 0;
 	}
 
-	map_iterator(Pointer ptr)
+	map_iterator(Node* ptr)
 	{
 		this->m_ptr = ptr;
 	}
@@ -183,8 +182,8 @@ public:
 	typedef const value_type&						const_reference;
 	typedef typename Alloc::pointer					pointer;
 	typedef typename Alloc::const_pointer			const_pointer;
-	typedef	map_iterator<node_pointer>				iterator;
-	typedef map_const_iterator<const node_pointer>	const_iterator;
+	typedef	map_iterator<value_type, node>					iterator;
+	typedef map_const_iterator<const value_type, node>		const_iterator;
 	typedef ft::reverse_iterator<iterator>			reverse_iterator;
 	typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 
@@ -219,8 +218,7 @@ public:
 		m_leaf->is_leaf = true;
 		m_end->right = m_leaf;
 		m_end->left = m_leaf;
-		(void)first;
-		(void)last;
+		m.insert(first, last);
 	}
 
 	map(const map& other)
@@ -285,7 +283,7 @@ public:
 	
 	const_iterator	begin(void) const
 	{
-		return (iterator(m_begin));
+		return (const_iterator(m_begin));
 	}
 
 	reverse_iterator	rbegin(void)
@@ -295,7 +293,7 @@ public:
 
 	const_reverse_iterator	rbegin(void) const
 	{
-		return (reverse_iterator(m_end));
+		return (const_reverse_iterator(m_end));
 	}
 
 	iterator	end(void)
@@ -305,7 +303,7 @@ public:
 
 	const_iterator	end(void) const
 	{
-		return (iterator(m_end));
+		return (const_iterator(m_end));
 	}
 
 	reverse_iterator	rend(void)
@@ -344,7 +342,7 @@ public:
 	ft::pair<iterator, bool>	insert(const value_type& value)
 	{
 		node_pointer	new_node = priv_newNode(value);
-		if (m_root == m_leaf)
+		if (m_size == 0)
 		{
 			new_node->right = m_end;
 			m_end->parent = new_node;
@@ -366,7 +364,7 @@ public:
 	iterator	insert(iterator hint, const value_type& value)
 	{
 		node_pointer	new_node = priv_newNode(value);
-		if (m_root == m_leaf)
+		if (m_size == 0)
 		{
 			new_node->right = m_end;
 			m_end->parent = new_node;
