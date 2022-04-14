@@ -1,12 +1,11 @@
-/* ************************************************************************** */
-/*                                                                            */
+/* ************************************************************************** */ /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   map.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/13 10:30:27 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/13 15:45:23 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/14 14:49:08 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +14,9 @@
 
 #include "pair.hpp"
 #include "reverse_iterator.hpp"
+#include "equal.hpp"
+#include "lexicographical_compare.hpp"
+#include "iterator_traits.hpp"
 
 namespace ft
 {
@@ -31,7 +33,7 @@ public:
 	typedef typename ft::iterator_traits<Pointer>::iterator_category	iterator_category;
 	typedef typename ft::iterator_traits<Pointer>::reference			reference;
 
-private:
+protected:
 	typedef typename value_type::value_type								value_pair;
 	typedef value_pair*													pointer_pair;
 	typedef value_pair&													reference_pair;
@@ -168,6 +170,8 @@ private:
 	typedef std::allocator<node>	node_allocator_type;
 
 public:
+	class value_compare;
+
 	typedef Key										key_type;
 	typedef T										mapped_type;
 	typedef ft::pair<const Key, T>					value_type;
@@ -221,7 +225,7 @@ public:
 
 	map(const map& other)
 	{
-		(void)other;
+		*this = other;
 	}
 
 	~map(void)
@@ -232,10 +236,66 @@ public:
 		m_node_alloc.deallocate(m_end, 1);
 	}
 
+	/*   OPERATOR= / GET_ALLOC  */
+	map&	operator=(const map& other)
+	{
+		erase(begin(), end());
+		insert(other.begin(), other.end());
+		return (*this);
+	}
+
+	allocator_type	get_allocator(void) const
+	{
+		return (m_alloc);
+	}
+
+	/*   ELEMENT ACCESS  */
+	mapped_type&	at(const key_type& k)
+	{
+		node_pointer	n = priv_search_key(k);
+		if (n == m_leaf || n == m_end)
+			throw OutOfRangeException();
+		return (n->val->second);
+	}
+
+	const mapped_type&	at(const key_type& k) const
+	{
+		node_pointer	n = priv_search_key(k);
+		if (n == m_leaf || n == m_end)
+			throw OutOfRangeException();
+		return (n->val->second);
+	}
+
+	mapped_type&	operator[](const key_type& k)
+	{
+		node_pointer				n = priv_search_key(k);
+		if (n == m_leaf || n == m_end)
+		{
+			insert(ft::make_pair<Key, T>(k, T()));
+			n = priv_search_key(k);
+		}
+		return (n->val->second);
+	}
+
 	/*   ITERATORS  */
 	iterator	begin(void)
 	{
 		return (iterator(m_begin));
+	}
+	
+	const_iterator	begin(void) const
+	{
+		return (iterator(m_begin));
+	}
+
+	reverse_iterator	rbegin(void)
+	{
+		return (reverse_iterator(m_end));
+	}
+
+	const_reverse_iterator	rbegin(void) const
+	{
+		return (reverse_iterator(m_end));
 	}
 
 	iterator	end(void)
@@ -243,7 +303,44 @@ public:
 		return (iterator(m_end));
 	}
 
+	const_iterator	end(void) const
+	{
+		return (iterator(m_end));
+	}
+
+	reverse_iterator	rend(void)
+	{
+		return (reverse_iterator(m_begin));
+	}
+
+	const reverse_iterator	rend(void) const
+	{
+		return (reverse_iterator(m_begin));
+	}
+
+	/*   CAPACITY  */
+	bool	empty(void) const
+	{
+		return (m_begin == m_end);
+	}
+
+	size_type	size(void) const
+	{
+		return (m_size);
+	}
+
+	size_type	max_size(void) const
+	{
+		return (m_node_alloc.max_size());
+	}
+
 	/*   MODIFIERS  */
+	void	clear(void)
+	{
+		priv_tree_destroy(m_root);
+		m_size = 0;
+	}
+
 	ft::pair<iterator, bool>	insert(const value_type& value)
 	{
 		node_pointer	new_node = priv_newNode(value);
@@ -254,24 +351,200 @@ public:
 			m_root = new_node;
 			m_begin = new_node;
 			m_root->color = 0;
+			++m_size;
 			return (ft::make_pair<iterator, bool>(iterator(new_node), true));
 		}
 		ft::pair<iterator, bool>	mp = priv_insert(new_node, m_root);
 		if (mp.second == true)
+		{
+			++m_size;
 			priv_insert_balance(new_node);
+		}
 		return (mp);
 	}
 
+	iterator	insert(iterator hint, const value_type& value)
+	{
+		node_pointer	new_node = priv_newNode(value);
+		if (m_root == m_leaf)
+		{
+			new_node->right = m_end;
+			m_end->parent = new_node;
+			m_root = new_node;
+			m_begin = new_node;
+			m_root->color = 0;
+			++m_size;
+			return (iterator(new_node));
+		}
+		ft::pair<iterator, bool>	mp;
+		if (hint == end())
+			mp = priv_insert_hint(new_node, m_end->parent);
+		else
+			mp = priv_insert_hint(new_node, priv_search_key(hint->first));
+		if (mp.second == true)
+		{
+			++m_size;
+			priv_insert_balance(new_node);
+		}
+		return (mp.first);
+	}
+
+	template<class Init>
+	void	insert(Init first, Init last)
+	{
+		for (; first != last; ++first)
+			insert(*first);
+	}
+
+	void	erase(iterator pos)
+	{
+		priv_remove(priv_search_key(pos->first));
+	}
+
+	void	erase(iterator first, iterator last)
+	{
+		for (; first != last; ++first)
+			erase(priv_search_key(first->first));
+	}
+
+	size_type	erase(const Key& k)
+	{
+		node_pointer	n = priv_search_key(k);
+		if (n != m_leaf && n != m_end)
+		{
+			priv_remove(n);
+			return (1);
+		}
+		return (0);
+	}
+
+	void	swap(map& other)
+	{
+		map	m;
+
+		m = *this;
+		*this = other;
+		other = m;
+	}
+
+	/*   LOOKUP  */
+	size_type	count(const Key& k)
+	{
+		node_pointer	n = priv_search_key(k);
+		if (n == m_leaf || n == m_end)
+		   return (0);
+		return (1);
+	}	
+
+	iterator	find(const Key& k)
+	{
+		node_pointer	n = priv_search_key(k);
+		if (n == m_leaf || n == m_end)
+			return (end());
+		return (iterator(n));
+	}
+
+	ft::pair<iterator, iterator>	equal_range(const Key& k)
+	{
+		return (ft::make_pair<iterator, iterator>(lower_bound(k), upper_bound(k)));
+	}
+
+	ft::pair<const_iterator, const_iterator>	equal_range(const Key& k) const
+	{
+		return (ft::make_pair<const_iterator, const_iterator>(lower_bound(k), upper_bound(k)));
+	}
+
+	iterator	lower_bound(const Key& k)
+	{
+		iterator it = begin();
+		for (; !m_comp(it->first, k) && it != end(); ++it)
+			;
+		return (it);
+	}
+
+	const_iterator	lower_bound(const Key& k) const
+	{
+		iterator it = begin();
+		for (; !m_comp(it->first, k) && it != end(); ++it)
+			;
+		return (it);
+	}
+
+	iterator	upper_bound(const Key& k)
+	{
+		iterator it = begin();
+		for (; m_comp(it->first, k) && it != end(); ++it)
+			;
+		return (it);
+	}
+
+	const_iterator	upper_bound(const Key& k) const
+	{
+		iterator it = begin();
+		for (; m_comp(it->first, k) && it != end(); ++it)
+			;
+		return (it);
+	}
+
+	/*   OBSERVERS  */
+	compare_type	key_comp(void) const
+	{
+		return (m_comp);
+	}
+
+	value_compare	value_comp(void) const
+	{
+		return (value_compare(m_comp));
+	}
+
 private:
+
+	/*   SEARCH  */
+	node_pointer	priv_search_key(const key_type& k)
+	{
+		node_pointer	ptr = m_root;
+		while (ptr != m_leaf && ptr != m_end)
+		{
+			if (m_comp(k, ptr->val->first))
+				ptr = ptr->left;
+			else if (m_comp(ptr->val->first, k))
+				ptr = ptr->right;
+			else
+				break;
+		}
+		return (ptr);
+	}
+
+	node_pointer	priv_min(node_pointer p)
+	{
+		while (p->left != m_leaf)
+			p = p->left;
+		return (p);
+	}
+
+	node_pointer	priv_max(node_pointer p)
+	{
+		while (p->right != m_leaf)
+			p = p->right;
+		return (p);
+	}
+
+	/*   INSERTION  */
+	ft::pair<iterator, bool>	priv_insert_hint(node_pointer new_node, node_pointer hint)
+	{
+		if (hint == m_root)
+			return (priv_insert(new_node, m_root));
+		else if (m_comp(new_node->val->first, hint->val->first) && hint == hint->parent->left)
+			return (priv_insert(new_node, hint));
+		else if (m_comp(hint->val->first, new_node->val->first) && hint == hint->parent->right)
+			return (priv_insert(new_node, hint));
+		else
+			return (priv_insert_hint(new_node, hint->parent));
+	}
+
 	ft::pair<iterator, bool>	priv_insert(node_pointer new_node, node_pointer it)
 	{
-		if (new_node->val->first == it->val->first)
-		{
-			m_node_alloc.destroy(new_node);
-			m_node_alloc.deallocate(new_node, 1);
-			return (ft::make_pair<iterator, bool>(iterator(it), false));
-		}
-		else if (m_comp(new_node->val->first, it->val->first))
+		if (m_comp(new_node->val->first, it->val->first))
 		{
 			if (it->left->is_leaf)
 			{
@@ -283,7 +556,7 @@ private:
 			}
 			return (priv_insert(new_node, it->left));
 		}
-		else
+		else if (m_comp(it->val->first, new_node->val->first))
 		{
 			if (it->right->is_leaf || it->right == m_end)
 			{
@@ -297,6 +570,12 @@ private:
 				return (ft::make_pair<iterator, bool>(iterator(new_node), true));
 			}
 			return (priv_insert(new_node, it->right));
+		}
+		else
+		{
+			m_node_alloc.destroy(new_node);
+			m_node_alloc.deallocate(new_node, 1);
+			return (ft::make_pair<iterator, bool>(iterator(it), false));
 		}
 	}
 
@@ -351,6 +630,127 @@ private:
 		m_root->color = 0;
 	}
 
+	/*   DELETION  */
+	void	priv_remove(node_pointer z)
+	{
+		bool			original_color = z->color;
+		node_pointer	y = z;
+		node_pointer	x;
+
+		if (z->left == m_leaf)
+		{
+			x = z->right;
+			priv_transplant(z, z->right);
+		}
+		else if (z->right == m_leaf)
+		{
+			x = z->left;
+			priv_transplant(z, z->left);
+		}
+		else
+		{
+			y = priv_min(z->right);
+			original_color = y->color;
+			x = y->right;
+			if (y->parent == z)
+				x->parent = y;
+			else 
+			{
+				priv_transplant(y, y->right);
+				y->right = z->right;
+				y->right->parent = y;
+			}
+			priv_transplant(z, y);
+			y->left = z->left;
+			y->left->parent = y;
+			y->color = z->color;
+		}
+		if (z == m_begin)
+			m_begin = priv_min(m_root);
+		if (z == m_end->parent)
+		{
+			m_end->parent = priv_max(m_root);
+			priv_max(m_root)->right = m_end;
+		}
+		m_node_alloc.destroy(z);
+		m_node_alloc.deallocate(z, 1);
+		m_size--;
+		if (original_color == 0)
+			priv_remove_balance(x);
+	}
+
+	void	priv_remove_balance(node_pointer x)
+	{
+		node_pointer	s;
+
+		while (x != m_root && x->color == 0)
+		{
+			if (x == x->parent->left)
+			{
+				s = x->parent->right;
+				if (s->color == 1)
+				{
+					s->color = 0;
+					x->parent->color = 1;
+					priv_left_rotate(x->parent);
+					s = x->parent->right;
+				}
+				if (s->left->color == 0 && s->right->color == 0)
+				{
+					s->color = 1;
+					x = x->parent;
+				}
+				else
+				{
+					if (s->right->color == 0)
+					{
+						s->left->color = 0;
+						s->color = 1;
+						priv_right_rotate(s);
+						s = x->parent->right;
+					}
+					s->color = x->parent->color;
+					x->parent->color = 0;
+					s->right->color = 0;
+					priv_left_rotate(x->parent);
+					x = m_root;
+				}
+			}
+			else
+			{
+				s = x->parent->left;
+				if (s->color == 1)
+				{
+					s->color = 0;
+					x->parent->color = 1;
+					priv_right_rotate(x->parent);
+					s = x->parent->left;
+				}
+				if (s->right->color == 0 && s->right->color == 0) {
+					s->color = 1;
+					x = x->parent;
+				}
+				else
+				{
+					if (s->left->color == 0)
+					{
+						s->right->color = 0;
+						s->color = 1;
+						priv_left_rotate(s);
+						s = x->parent->left;
+					}
+					s->color = x->parent->color;
+					x->parent->color = 0;
+					s->left->color = 0;
+					priv_right_rotate(x->parent);
+					x = m_root;
+				}
+			}
+		}
+		x->color = 0;
+	}
+
+	/*   ROTATIONS  */
 	void	priv_left_rotate(node_pointer n)
 	{
 		node_pointer r = n->right;
@@ -387,6 +787,18 @@ private:
 		n->parent = l;
 	}
 
+	void	priv_transplant(node_pointer u, node_pointer v)
+	{
+		if (u->parent == NULL)
+			m_root = v;
+		else if (u == u->parent->left)
+			u->parent->left = v;
+		else
+			u->parent->right = v;
+		v->parent = u->parent;
+	}
+
+	/*   DESTROY  */
 	void	priv_tree_destroy(node_pointer ptr)
 	{
 		if (ptr->is_leaf == false && ptr != m_end)
@@ -484,12 +896,23 @@ private:
 		allocator_type			alloc;
 	};
 
-
+	class	OutOfRangeException : public std::out_of_range
+	{
+	public :
+		OutOfRangeException()
+			: std::out_of_range("Ft::map : Index out of bounds") {}
+	};
 
 public:
 
 	class value_compare
 	{
+
+	public:
+		bool	operator()(const value_type& lhs, const value_type& rhs)
+		{
+			return (comp(lhs.first, rhs.first));
+		}
 
 	protected:
 		value_compare(Compare c)
@@ -497,10 +920,59 @@ public:
 		{
 		}
 
-	private:
 		Compare comp;
 	};
 };
+
+	/*   NON_MEMBER FUNCTIONS  */
+template<class Key, class T, class Compare, class Alloc>
+bool	operator==(const map<Key, T, Compare, Alloc>& lhs,
+					const map<Key, T, Compare, Alloc>& rhs)
+{
+	return (ft::equal(lhs.begin(), lhs.end(), rhs.begin()));
+}
+
+template<class Key, class T, class Compare, class Alloc>
+bool	operator!=(const map<Key, T, Compare, Alloc>& lhs,
+					const map<Key, T, Compare, Alloc>& rhs)
+{
+	return (!(lhs == rhs));
+}
+
+template<class Key, class T, class Compare, class Alloc>
+bool	operator<(const map<Key, T, Compare, Alloc>& lhs,
+					const map<Key, T, Compare, Alloc>& rhs)
+{
+	return (lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
+}
+
+template<class Key, class T, class Compare, class Alloc>
+bool	operator>=(const map<Key, T, Compare, Alloc>& lhs,
+					const map<Key, T, Compare, Alloc>& rhs)
+{
+	return (!(lhs < rhs));
+}
+
+template<class Key, class T, class Compare, class Alloc>
+bool	operator>(const map<Key, T, Compare, Alloc>& lhs,
+					const map<Key, T, Compare, Alloc>& rhs)
+{
+	return (!(lhs >= rhs));
+}
+
+template<class Key, class T, class Compare, class Alloc>
+bool	operator<=(const map<Key, T, Compare, Alloc>& lhs,
+					const map<Key, T, Compare, Alloc>& rhs)
+{
+	return (!(lhs > rhs));
+}
+
+template<class Key, class T, class Compare, class Alloc>
+void	swap(const map<Key, T, Compare, Alloc>& lhs,
+			const map<Key, T, Compare, Alloc>& rhs)
+{
+	lhs.swap(rhs);
+}
 
 }
  #endif

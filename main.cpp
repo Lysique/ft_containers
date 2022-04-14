@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/09 11:05:11 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/13 15:45:20 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/14 15:15:09 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,22 +74,17 @@ void	print_cont(Cont &cont)
 int	main(void)
 {
 	{
-		using namespace std;
+		using namespace ft;
 
-		map<std::string, MyClass>	m;
-		map<std::string, MyClass>::iterator	it;
-		std::pair<map<std::string, MyClass>::iterator, bool>	te;
-		m.insert(std::make_pair<std::string, MyClass>("opiou", 6));
-		m.insert(std::make_pair<std::string, MyClass>("pou", 6));
-		m.insert(std::make_pair<std::string, MyClass>("Ola", 5));
-		m.insert(std::make_pair<std::string, MyClass>("Ela", 6));
-		m.insert(std::make_pair<std::string, MyClass>("ila", 6));
-		te = m.insert(std::make_pair<std::string, MyClass>("lili", 6));
-		std::cout << te.second << std::endl;
-		te = m.insert(std::make_pair<std::string, MyClass>("lili", 3));
-		std::cout << te.second << std::endl;
-		print_cont(m);
-		//std::cout << m.max_size() << std::endl;
+		map<int, int>	m;
+		map<int, int>	m2;
+		m.insert(make_pair<int, int>(3, 6));
+		m.insert(make_pair<int, int>(1, 6));
+		m.insert(make_pair<int, int>(2, 6));
+		m.insert(make_pair<int, int>(10, 10));
+		m2.insert(make_pair<int, int>(10, 10));
+		m2 = m;
+		print_cont(m2);
 		//std::cout << m.get_allocator().max_size() << std::endl;
 	}
 	/*

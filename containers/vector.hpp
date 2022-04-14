@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 13:11:50 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/11 11:27:59 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/14 15:07:49 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ public:
 	typedef T&										reference;
 	typedef const T& 								const_reference;
 	typedef	Alloc									allocator_type;
+
+	//typedef typename ft::iterator_trait<pointer>::pointer	iterator::pointer;
 
 public:
 
@@ -102,7 +104,7 @@ public:
 
 	allocator_type	get_allocator(void) const
 	{
-		return (this->alloc);
+		return (this->m_alloc);
 	}
 
 	/*   ITERATORS FUNCTIONS  */	
