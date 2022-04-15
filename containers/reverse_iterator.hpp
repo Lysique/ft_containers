@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/04 11:07:11 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/11 11:34:04 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/15 15:01:08 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,13 +43,13 @@ public:
 	
 	explicit reverse_iterator(iterator_type it)
 	{
-		m_current(it);
+		m_current = it;
 	}
 
 	template<class U>
 	reverse_iterator(const reverse_iterator<U>& other)
 	{
-		m_current(other.base());
+		m_current = other.base();
 	}
 
 	/*   OPERATOR OVERLOAD = */
@@ -72,7 +72,7 @@ public:
 	{
 		It	tmp(m_current);
 		--tmp;
-		reference	r = *tmp;
+		reference r = *tmp;
 		return (r);
 	}
 
@@ -140,7 +140,7 @@ public:
 
 private:
 
-	It	m_current;
+	iterator_type	m_current;
 };
 
 template<class It1, class It2>

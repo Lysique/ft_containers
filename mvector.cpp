@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 13:13:12 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/09 09:28:34 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/15 12:24:55 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,8 +71,53 @@ void	print_cont(Cont &cont)
 	std::cout << std::endl;
 }
 
+template<class Cont>
+void	printSize(Cont &cont)
+{
+	std::cout << "Size : " << cont.size() << ", capacity : " << cont.capacity() << std::endl;
+	(void)cont;
+}
+
+#define TESTED_TYPE int
+#define TESTED_NAMESPACE ft
 int	main(void)
 {
+	TESTED_NAMESPACE::vector<TESTED_TYPE> vct(7);
+    TESTED_NAMESPACE::vector<TESTED_TYPE> vct_two(4);
+    TESTED_NAMESPACE::vector<TESTED_TYPE> vct_three;
+    TESTED_NAMESPACE::vector<TESTED_TYPE> vct_four;
+
+    for (unsigned long int i = 0; i < vct.size(); ++i)
+        vct[i] = (vct.size() - i) * 3;
+    for (unsigned long int i = 0; i < vct_two.size(); ++i)
+        vct_two[i] = (vct_two.size() - i) * 5;
+
+    vct_three.assign(vct.begin(), vct.end());
+    vct.assign(vct_two.begin(), vct_two.end());
+    vct_two.assign(2, 42);
+    vct_four.assign(4, 21);
+
+    std::cout << "\t### After assign(): ###" << std::endl;
+
+
+    vct_four.assign(6, 84);
+
+    std::cout << "\t### assign() on enough capacity and low size: ###" << std::endl;
+
+    printSize(vct);
+	print_cont(vct);
+	vct.erase(vct.begin(), vct.end());
+    printSize(vct);
+	print_cont(vct);
+    vct.insert(vct.begin(), 5, 53);
+    //vct.assign(5, 53);
+    printSize(vct);
+	print_cont(vct);
+    vct_two.assign(vct_three.begin(), vct_three.begin() + 3);
+
+
+    return (0);
+	/*
 	using namespace ft;	
 	try
 	{
@@ -196,4 +241,5 @@ int	main(void)
 		std::cout << e.what() << std::endl;
 	}
 	return (0);
+	*/
 }

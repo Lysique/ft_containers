@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 13:11:50 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/14 15:07:49 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/15 15:15:30 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,282 @@
 namespace ft
 {
 
+
+template<typename T>
+class	vector_const_iterator
+{
+	
+public:
+
+	typedef T								value_type;
+	typedef T*								pointer;
+	typedef T&								reference;
+	typedef	ptrdiff_t						difference_type;
+	typedef	std::random_access_iterator_tag	iterator_category;
+
+public:
+
+	/*  Default constructor */
+	vector_const_iterator(void)
+		: _ptr(0)
+	{
+	}
+
+	/*  Pointer constructor */
+	explicit	vector_const_iterator(pointer ptr)
+		: _ptr(ptr)
+	{
+	}
+
+	/*  			Operators overload 
+	 */
+
+	/*  Pointers operator */
+	reference	operator*(void) const
+	{
+		return(*_ptr);
+	}
+
+	const value_type*	operator->(void) const
+	{
+		return (_ptr);
+	}
+
+	reference operator[](value_type index) const
+	{
+		return (_ptr[index]);
+	}
+
+	vector_const_iterator	operator=(pointer ptr)
+	{
+		this->_ptr = ptr;
+		return (*this);
+	}
+
+	/*  Increment/decrement */
+	vector_const_iterator	&operator++(void)
+	{
+		++_ptr;
+		return (*this);
+	}
+
+	vector_const_iterator	operator++(int)
+	{
+		pointer	ptr;
+
+		ptr = _ptr;
+		++*this;
+		return (vector_const_iterator(ptr));
+	}
+
+	vector_const_iterator	&operator--(void)
+	{
+		--_ptr;
+		return (*this);
+	}
+
+	vector_const_iterator	operator--(int)
+	{
+		pointer	ptr;
+
+		ptr = _ptr;
+		--*this;
+		return (vector_const_iterator(ptr));
+	}
+
+	/*  Arithmetic operators */
+	vector_const_iterator	&operator+=(int off)
+	{
+		_ptr += off;
+		return (*this);
+	}
+
+	vector_const_iterator	&operator-=(int off)
+	{
+		_ptr -= off;
+		return (*this);
+	}
+
+	vector_const_iterator operator+(int off) const
+	{
+		return (vector_const_iterator(_ptr + off));
+	}
+
+	vector_const_iterator operator-(int off) const
+	{
+		return (vector_const_iterator(_ptr - off));
+	}
+
+	difference_type operator-(const vector_const_iterator& rhs) const
+	{
+		return (rhs._ptr - this->_ptr);
+	}
+
+	/*  Comparison operators */
+	bool	operator==(const vector_const_iterator& vec) const
+	{
+		return (_ptr == vec._ptr);
+	}
+
+	bool	operator!=(const vector_const_iterator& vec) const
+	{
+		return (_ptr != vec._ptr);
+	}
+
+	bool	operator>=(const vector_const_iterator& vec) const
+	{
+		return (_ptr >= vec._ptr);
+	}
+
+	bool	operator<=(const vector_const_iterator& vec) const
+	{
+		return (_ptr <= vec._ptr);
+	}
+
+	bool	operator>(const vector_const_iterator& vec) const
+	{
+		return (_ptr > vec._ptr);
+	}
+
+	bool	operator<(const vector_const_iterator& vec) const
+	{
+		return (_ptr < vec._ptr);
+	}
+
+protected:
+	
+	pointer	_ptr;
+};
+
+template<class T>
+vector_const_iterator<T> operator+(int off, vector_const_iterator<T>& vec)
+{
+	return (vector_const_iterator<T>(off + vec._ptr));
+}
+
+template<class T>
+vector_const_iterator<T> operator-(int off, vector_const_iterator<T>& vec)
+{
+	return (vector_const_iterator<T>(off - vec._ptr));
+}
+
+
+	/*  End vector const iterator class */
+
+	/*  									Vector iterator class 
+	 *
+	 */
+
+template<typename T>
+class vector_iterator : public vector_const_iterator<T>
+{
+
+public:
+
+	typedef T*			pointer;
+	typedef T&			reference;
+	typedef T			value_type;
+	typedef	ptrdiff_t	difference_type;
+
+public:
+
+	explicit vector_iterator(pointer ptr) : vector_const_iterator<T>(ptr)
+	{
+	}
+
+	vector_iterator(void)
+	{
+	}
+
+	/*  Pointers operators overloads */
+	
+	reference	operator*(void)
+	{
+		return (*this->_ptr);
+	}
+
+	value_type*	operator->(void) const
+	{
+		return (this->_ptr);
+	}
+
+	reference operator[](value_type index) const
+	{
+		return (this->_ptr[index]);
+	}
+
+	/*  Increment/decrement */
+	vector_iterator	&operator++(void)
+	{
+		++this->_ptr;
+		return (*this);
+	}
+
+	vector_iterator	operator++(int)
+	{
+		pointer	ptr;
+
+		ptr = this->_ptr;
+		++*this;
+		return (vector_iterator(ptr));
+	}
+
+	vector_iterator	&operator--(void)
+	{
+		--this->_ptr;
+		return (*this);
+	}
+
+	vector_iterator	operator--(int)
+	{
+		pointer	ptr;
+
+		ptr = this->_ptr;
+		--*this;
+		return (vector_iterator(ptr));
+	}
+
+	/*  Arithmetic operators */
+	vector_iterator	&operator+=(int off)
+	{
+		this->_ptr += off;
+		return (*this);
+	}
+
+	vector_iterator	&operator-=(int off)
+	{
+		this->_ptr -= off;
+		return (*this); 
+	}
+
+	vector_iterator operator+(int off) const
+	{
+		return (vector_iterator(this->_ptr + off));
+	}
+
+	vector_iterator operator-(int off) const
+	{
+		return (vector_iterator(this->_ptr - off));
+	}
+
+	difference_type operator-(const vector_iterator& rhs) const
+	{
+		return (rhs._ptr - this->_ptr);
+	}
+};
+
+template<class T>
+vector_iterator<T> operator+(int off, vector_iterator<T>& vec)
+{
+	return (vector_iterator<T>(off + vec._ptr));
+}
+
+template<class T>
+vector_iterator<T> operator-(int off, vector_iterator<T>& vec)
+{
+	return (vector_iterator<T>(off - vec._ptr));
+}
+
 template<class T, class Alloc = std::allocator<T> >
 class vector
 {
@@ -32,8 +308,8 @@ class vector
 	/*  MEMBER TYPES */
 public:
 
-	typedef T*										iterator;
-	typedef const T*								const_iterator;
+	typedef vector_iterator<T>							iterator;
+	typedef vector_const_iterator<T>					const_iterator;
 	typedef ft::reverse_iterator<iterator>			reverse_iterator;
 	typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 	typedef size_t									size_type;
@@ -44,8 +320,6 @@ public:
 	typedef T&										reference;
 	typedef const T& 								const_reference;
 	typedef	Alloc									allocator_type;
-
-	//typedef typename ft::iterator_trait<pointer>::pointer	iterator::pointer;
 
 public:
 
@@ -90,7 +364,7 @@ public:
 	~vector(void)
 	{
 		this->erase(this->begin(), this->end());
-		m_alloc.deallocate(&(*this->begin()), this->m_capacity);
+		m_alloc.deallocate(&*this->begin(), this->m_capacity);
 	}
 
 	/*   VECTOR OPERATOR= */
@@ -175,9 +449,9 @@ public:
 		{
 			pointer new_start = m_alloc.allocate(new_cap, this->m_start);
 			for (size_type i = 0; i < this->m_size; i++)
-				m_alloc.construct(&(*(new_start + i)), *(this->m_start + i));
+				m_alloc.construct(&*(new_start + i), *(this->m_start + i));
 			for (size_type i = 0; i < this->m_size; i++)
-				m_alloc.destroy(&(*(this->m_start + i)));
+				m_alloc.destroy(&*(this->m_start + i));
 			if (this->m_start)
 				m_alloc.deallocate(this->m_start, this->m_capacity);
 			this->m_capacity = new_cap;
@@ -309,7 +583,7 @@ public:
 
 	void	pop_back(void)
 	{
-		this->m_alloc.destroy(&(*(this->end() - 1)));
+		this->m_alloc.destroy(&*(this->end() - 1));
 		--this->m_size;
 	}
 
@@ -349,11 +623,11 @@ public:
 		if (first != last)
 		{
 			size_type	erased = vector::priv_distance(first, last);
-			iterator	it2 = &*last;
-			for (iterator it = &*first; it2 != &*this->end(); ++it2, ++it)
+			iterator	it2(&*last);
+			for (iterator it(&*first); it2 != this->end(); ++it2, ++it)
 				*it = *it2;
-			for (iterator new_end = &*(this->end() - erased); new_end != &*this->end(); ++new_end)
-				this->m_alloc.destroy(new_end);
+			for (iterator new_end(&*(this->end() - erased)); new_end != this->end(); ++new_end)
+				this->m_alloc.destroy(&*new_end);
 			this->m_size -= erased;
 		}
 		return (first);
@@ -371,7 +645,7 @@ public:
 	void	clear(void)
 	{
 		for (iterator it = this->begin(); it != this->end(); ++it)
-			this->m_alloc.destroy(it);
+			this->m_alloc.destroy(&*it);
 		this->m_size = 0;
 	}
 
@@ -468,9 +742,21 @@ private:
 		else
 		{
 			size_type	elem_moved = this->m_size - pos;
+			reverse_iterator	new_end(this->end() + n);
+			reverse_iterator	old_end(this->end());
+			ft::reverse_iterator<Init>	r_last(last);
+			for (int i = elem_moved; i != 0; --i, ++new_end, ++old_end)
+				m_alloc.construct(&*new_end, *old_end);
+			for (int i = n - elem_moved; i != 0; --i, ++new_end, ++r_last)
+				m_alloc.construct(&*new_end, *r_last);
+			for (ft::reverse_iterator<Init> r_first(first); r_last != r_first; ++r_last, ++new_end)
+				*new_end = *r_last;
+			/*
+			size_type	elem_moved = this->m_size - pos;
 			vector::priv_range_unin_copy_backward(this->end() + n, this->end(), this->end() - elem_moved);
 			vector::priv_range_unin_copy_backward(this->end() + n - elem_moved, last, first + elem_moved);
 			vector::priv_range_copy_backward(this->end(), first + elem_moved, first);
+			*/
 		}
 		this->m_size += n;
 	}
@@ -484,6 +770,7 @@ private:
 
 	static void	priv_value_copy_backward(iterator pos,	const value_type& val, size_type n)
 	{
+		--pos;
 		for (; n != 0; --n, --pos)
 			*pos = val;
 	}
@@ -495,45 +782,35 @@ private:
 			*pos = *first;
 	}
 
-	static void	priv_range_copy(iterator pos, iterator first, iterator last)
-	{
-		for (; first != last; ++first, ++pos)
-			*pos = *first;
-	}
-
 	template<class Init>
 	static void	priv_range_copy_backward(iterator pos, Init first, Init last)
 	{
 		Init	p_first = first - 1;
 		Init	p_last = last - 1;
 		
+		--pos;
 		for (; p_first != p_last; --p_first, --pos)
 			*pos = *p_first;
-	}
-
-	static void	priv_range_copy_backward(iterator pos, iterator first, iterator last)
-	{
-		for (; first != last; --first, --pos)
-			*pos = *first;
 	}
 
 	/*   Insert a copy at an uninitialized memory, using Allocator.construct() */
 	void	priv_default_unin_copy(iterator pos, size_type n)
 	{
 		for (; n != 0; --n, ++pos)
-			m_alloc.construct(&(*pos));
+			m_alloc.construct(&*pos);
 	}
 
 	void	priv_value_unin_copy_backward(iterator pos, const value_type& val, size_type n)
 	{
+		--pos;
 		for (; n != 0; --n, --pos)
-			m_alloc.construct(pos, val);
+			m_alloc.construct(&*pos, val);
 	}
 
 	void	priv_value_unin_copy(iterator pos, const value_type& val, size_type n)
 	{
 		for (; n != 0; --n, ++pos)
-			m_alloc.construct(pos, val);
+			m_alloc.construct(&*pos, val);
 	}
 
 	template<class Init>
@@ -542,14 +819,19 @@ private:
 		Init	p_first = first - 1;
 		Init	p_last = last - 1;
 		
+		--pos;
 		for (; p_first != p_last; --p_first, --pos)
-			m_alloc.construct(pos, *p_first);
+			m_alloc.construct(&*pos, *p_first);
 	}
 
 	void	priv_range_unin_copy_backward(iterator pos, iterator first, iterator last)
 	{
-		for (; first != last; --first, --pos)
-			m_alloc.construct(pos, *first);
+		iterator	p_first = first - 1;
+		iterator	p_last = last - 1;
+	
+		--pos;
+		for (; p_first != p_last; --p_first, --pos)
+			m_alloc.construct(&*pos, *p_first);
 	}
 
 	template<class Init>
@@ -562,7 +844,7 @@ private:
 	void	priv_range_unin_copy(iterator pos, iterator first, iterator last)
 	{
 		for (; first != last; ++first, ++pos)
-			m_alloc.construct(&(*pos), *first);
+			m_alloc.construct(&*pos, *first);
 	}
 
 	template<class Init>
@@ -612,9 +894,15 @@ bool	operator!=(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
 }
 
 template<class T, class Alloc>
-bool	operator>=(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
+bool	operator<(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
 {
-	return (!(lhs < rhs));
+	return (lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
+}
+
+template<class T, class Alloc>
+bool	operator>(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
+{
+	return (lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end()));
 }
 
 template<class T, class Alloc>
@@ -624,15 +912,9 @@ bool	operator<=(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
 }
 
 template<class T, class Alloc>
-bool	operator>(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
+bool	operator>=(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
 {
-	return (!(lhs >= rhs));
-}
-
-template<class T, class Alloc>
-bool	operator<(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
-{
-	return (lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
+	return (!(lhs < rhs));
 }
 
 template<class T, class Alloc>
