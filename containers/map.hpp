@@ -1,4 +1,4 @@
-/* ************************************************************************** */ /*                                                                            */
+/* ************************************************************************** */
 /*                                                        :::      ::::::::   */
 /*   map.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
@@ -21,21 +21,23 @@
 namespace ft
 {
 
-template<class T, class Node>
+template<class Node>
 class map_const_iterator
 {
 	/*   TYPE MEMBERS  */
 
 public:
-	typedef T	value_type;
-	typedef T*	pointer;
-	typedef T&	reference;
-	typedef const T*	const_pointer;
-	typedef std::random_access_iterator_tag	iterator_category;
 
-	typedef Node	node;
-	typedef Node*	node_pointer;
-	typedef Node&	node_reference;
+	typedef const typename  Node::value_type		value_type;
+	typedef value_type*								pointer;
+	typedef ptrdiff_t								difference_type;
+	typedef value_type&								reference;
+	typedef const value_type*						const_pointer;
+	typedef std::random_access_iterator_tag			iterator_category;
+
+	typedef Node		node;
+	typedef Node*		node_pointer;
+	typedef Node&		node_reference;
 	typedef const node*	node_const_pointer;
 
 	/*   FUNCTIONS MEMBERS  */
@@ -58,7 +60,7 @@ public:
 	}
 
 	/*   REFERENCES OPERATOR  */
-	value_type	operator*(void)
+	reference	operator*(void)
 	{
 		return (*m_ptr->val);
 	}
@@ -140,9 +142,19 @@ protected:
 	node_pointer	m_ptr;
 };
 
-template<class Pointer, class Node>
-class map_iterator : public map_const_iterator<Pointer, Node>
+template<class Node>
+class map_iterator : public map_const_iterator<Node>
 {
+
+public:
+
+	typedef typename  Node::value_type				value_type;
+	typedef value_type*								pointer;
+	typedef ptrdiff_t								difference_type;
+	typedef value_type&								reference;
+	typedef const value_type*						const_pointer;
+	typedef std::random_access_iterator_tag			iterator_category;
+
 public:
 
 	map_iterator(void)
@@ -150,10 +162,71 @@ public:
 		this->m_ptr = 0;
 	}
 
-	map_iterator(Node* ptr)
+	explicit map_iterator(Node* ptr)
+		: map_const_iterator<Node>(ptr)
 	{
-		this->m_ptr = ptr;
 	}
+
+	/*   REFERENCES OPERATOR  */
+	reference	operator*(void)
+	{
+		return (*this->m_ptr->val);
+	}
+
+	pointer	operator->(void) const
+	{
+		return (this->m_ptr->val);
+	}
+
+	/*   INCREMENT / DECREMENT  */
+	map_iterator&	operator++(void)
+	{
+		if (this->m_ptr->right->is_leaf == false)
+		{
+			this->m_ptr = this->m_ptr->right;
+			while (this->m_ptr->left->is_leaf == false)
+				this->m_ptr = this->m_ptr->left;
+		}
+		else
+		{
+			while (this->m_ptr->parent->right == this->m_ptr)
+				this->m_ptr = this->m_ptr->parent;
+			this->m_ptr = this->m_ptr->parent;
+		}
+		return (*this);
+	}
+
+	map_iterator&	operator++(int)
+	{
+		pointer	tmp = this->m_ptr;
+		++*this;
+		return (map_iterator(tmp));
+	}
+
+	map_iterator&	operator--(void)
+	{
+		if (this->m_ptr->left->is_leaf == false)
+		{
+			this->m_ptr = this->m_ptr->left;
+			while (this->m_ptr->right->is_leaf == false)
+				this->m_ptr = this->m_ptr->right;
+		}
+		else
+		{
+			while (this->m_ptr->parent->left == this->m_ptr)
+				this->m_ptr = this->m_ptr->parent;
+			this->m_ptr = this->m_ptr->parent;
+		}
+		return (*this);
+	}
+
+	map_iterator&	operator--(int)
+	{
+		pointer	tmp = this->m_ptr;
+		--*this;
+		return (map_iterator(tmp));
+	}
+
 };
 
 
@@ -171,21 +244,24 @@ private:
 public:
 	class value_compare;
 
+	typedef	map_iterator<node>						iterator;
+	typedef map_const_iterator<node>				const_iterator;
+	typedef ft::reverse_iterator<iterator>			reverse_iterator;
+	typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;
+
 	typedef Key										key_type;
 	typedef T										mapped_type;
+
 	typedef ft::pair<const Key, T>					value_type;
 	typedef size_t									size_type;
 	typedef ptrdiff_t								difference_type;
 	typedef Compare									compare_type;
+	typedef std::random_access_iterator_tag			iterator_category;
 	typedef Alloc									allocator_type;
 	typedef value_type&								reference;
 	typedef const value_type&						const_reference;
 	typedef typename Alloc::pointer					pointer;
 	typedef typename Alloc::const_pointer			const_pointer;
-	typedef	map_iterator<value_type, node>					iterator;
-	typedef map_const_iterator<const value_type, node>		const_iterator;
-	typedef ft::reverse_iterator<iterator>			reverse_iterator;
-	typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 
 	/*   MEMBER FUNCTIONS  */
 public:
@@ -218,7 +294,7 @@ public:
 		m_leaf->is_leaf = true;
 		m_end->right = m_leaf;
 		m_end->left = m_leaf;
-		m.insert(first, last);
+		insert(first, last);
 	}
 
 	map(const map& other)

@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/09 11:05:11 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/14 15:59:07 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/15 11:36:22 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,16 +77,14 @@ int	main(void)
 		using namespace ft;
 
 		map<int, int>	m;
-		map<int, int>	m2;
+		map<int, int>::iterator it;
 		m.insert(make_pair<int, int>(3, 6));
 		m.insert(make_pair<int, int>(1, 6));
 		m.insert(make_pair<int, int>(2, 6));
 		m.insert(make_pair<int, int>(10, 10));
-		m2.insert(make_pair<int, int>(10, 10));
+		it = m.begin();
 		print_cont(m);
 
-		m2 = m;
-		print_cont(m2);
 		//std::cout << m.get_allocator().max_size() << std::endl;
 	}
 	/*
