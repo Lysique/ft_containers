@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/04 13:06:33 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/15 14:53:28 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/15 16:58:42 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ bool	equal(It1 first1, It1 last1, It2 first2)
 	for (; first1 != last1; ++first1, ++first2)
 		if (*first1 != *first2)
 			return (false);
-	return (*first1 == *first2);
+	return (true);
 }
 
 template<class It1, class It2, class BinaryPredicate>
@@ -31,7 +31,7 @@ bool	equal(It1 first1, It1 last1, It2 first2, BinaryPredicate bp)
 	for (; first1 != last1; ++first1, ++first2)
 		if (!bp(first1, first2))
 			return (false);
-	return (bp(*first1, *first2));
+	return (true);
 }
 
 }

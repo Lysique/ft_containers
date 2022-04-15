@@ -1,12 +1,11 @@
-/* ************************************************************************** */
-/*                                                                            */
+/* ************************************************************************** */ /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   vector.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/26 13:11:50 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/15 15:15:30 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/15 15:33:38 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +32,8 @@ class	vector_const_iterator
 public:
 
 	typedef T								value_type;
-	typedef T*								pointer;
-	typedef T&								reference;
+	typedef const T*								pointer;
+	typedef const T&								reference;
 	typedef	ptrdiff_t						difference_type;
 	typedef	std::random_access_iterator_tag	iterator_category;
 
@@ -47,7 +46,7 @@ public:
 	}
 
 	/*  Pointer constructor */
-	explicit	vector_const_iterator(pointer ptr)
+	explicit	vector_const_iterator(value_type* ptr)
 		: _ptr(ptr)
 	{
 	}
@@ -61,7 +60,7 @@ public:
 		return(*_ptr);
 	}
 
-	const value_type*	operator->(void) const
+	pointer	operator->(void) const
 	{
 		return (_ptr);
 	}
@@ -86,7 +85,7 @@ public:
 
 	vector_const_iterator	operator++(int)
 	{
-		pointer	ptr;
+		value_type*	ptr;
 
 		ptr = _ptr;
 		++*this;
@@ -101,7 +100,7 @@ public:
 
 	vector_const_iterator	operator--(int)
 	{
-		pointer	ptr;
+		value_type*	ptr;
 
 		ptr = _ptr;
 		--*this;
@@ -133,7 +132,7 @@ public:
 
 	difference_type operator-(const vector_const_iterator& rhs) const
 	{
-		return (rhs._ptr - this->_ptr);
+		return (this->_ptr - rhs._ptr);
 	}
 
 	/*  Comparison operators */
@@ -169,19 +168,19 @@ public:
 
 protected:
 	
-	pointer	_ptr;
+	value_type*	_ptr;
 };
 
 template<class T>
 vector_const_iterator<T> operator+(int off, vector_const_iterator<T>& vec)
 {
-	return (vector_const_iterator<T>(off + vec._ptr));
+	return (vector_const_iterator<T>(off + &*vec));
 }
 
 template<class T>
 vector_const_iterator<T> operator-(int off, vector_const_iterator<T>& vec)
 {
-	return (vector_const_iterator<T>(off - vec._ptr));
+	return (vector_const_iterator<T>(off - &*vec));
 }
 
 
@@ -219,12 +218,12 @@ public:
 		return (*this->_ptr);
 	}
 
-	value_type*	operator->(void) const
+	pointer	operator->(void) const
 	{
 		return (this->_ptr);
 	}
 
-	reference operator[](value_type index) const
+	reference operator[](difference_type index) const
 	{
 		return (this->_ptr[index]);
 	}
@@ -285,20 +284,20 @@ public:
 
 	difference_type operator-(const vector_iterator& rhs) const
 	{
-		return (rhs._ptr - this->_ptr);
+		return (this->_ptr - rhs._ptr);
 	}
 };
 
 template<class T>
 vector_iterator<T> operator+(int off, vector_iterator<T>& vec)
 {
-	return (vector_iterator<T>(off + vec._ptr));
+	return (vector_iterator<T>(off + &*vec));
 }
 
 template<class T>
 vector_iterator<T> operator-(int off, vector_iterator<T>& vec)
 {
-	return (vector_iterator<T>(off - vec._ptr));
+	return (vector_iterator<T>(off - &*vec));
 }
 
 template<class T, class Alloc = std::allocator<T> >
@@ -308,8 +307,8 @@ class vector
 	/*  MEMBER TYPES */
 public:
 
-	typedef vector_iterator<T>							iterator;
-	typedef vector_const_iterator<T>					const_iterator;
+	typedef vector_iterator<T>						iterator;
+	typedef vector_const_iterator<T>				const_iterator;
 	typedef ft::reverse_iterator<iterator>			reverse_iterator;
 	typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 	typedef size_t									size_type;
@@ -363,8 +362,11 @@ public:
 	/*   DESTRUCTOR  */
 	~vector(void)
 	{
-		this->erase(this->begin(), this->end());
-		m_alloc.deallocate(&*this->begin(), this->m_capacity);
+		if (this->m_start)
+		{
+			this->erase(this->begin(), this->end());
+			m_alloc.deallocate(&*this->begin(), this->m_capacity);
+		}
 	}
 
 	/*   VECTOR OPERATOR= */
@@ -637,9 +639,19 @@ public:
 	{
 		vector	vec;
 
-		vec = *this;
-		*this = x;
-		x = vec;
+		vec.m_start = this->m_start;
+		vec.m_size = this->m_size;
+		vec.m_capacity = this->m_capacity;
+		vec.m_alloc = this->m_alloc;
+		this->m_start = x.m_start;
+		this->m_size = x.m_size;
+		this->m_capacity = x.m_capacity;
+		this->m_alloc = x.m_alloc;
+		x.m_start = vec.m_start;
+		x.m_size = vec.m_size;
+		x.m_capacity = vec.m_capacity;
+		x.m_alloc = vec.m_alloc;
+		vec.m_start = 0;
 	}
 
 	void	clear(void)
@@ -884,7 +896,7 @@ private:
 template<class T, class Alloc>
 bool	operator==(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
 {
-	return (ft::equal(lhs.begin(), lhs.end(), rhs.begin()));
+	return (lhs.size() == rhs.size() && ft::equal(lhs.begin(), lhs.end(), rhs.begin()));
 }
 
 template<class T, class Alloc>
