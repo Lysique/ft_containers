@@ -32,8 +32,8 @@ class	vector_const_iterator
 public:
 
 	typedef T								value_type;
-	typedef const T*								pointer;
-	typedef const T&								reference;
+	typedef const T*						pointer;
+	typedef const T&						reference;
 	typedef	ptrdiff_t						difference_type;
 	typedef	std::random_access_iterator_tag	iterator_category;
 
@@ -571,10 +571,10 @@ public:
 		}
 		else
 		{
-			iterator	beg = this->begin();
-			for (; first != last; ++first, ++beg)
-				*beg = *first;
-			this->erase(beg, this->end());
+			pointer	p_beg = &*this->begin();
+			for (; first != last; ++first, ++p_beg)
+				*p_beg = *first;
+			this->erase(iterator(p_beg), this->end());
 		}
 	}
 
@@ -625,11 +625,11 @@ public:
 		if (first != last)
 		{
 			size_type	erased = vector::priv_distance(first, last);
-			iterator	it2(&*last);
-			for (iterator it(&*first); it2 != this->end(); ++it2, ++it)
+			pointer	it2 = &*last;
+			for (pointer it = &*first; it2 != &*this->end(); ++it2, ++it)
 				*it = *it2;
-			for (iterator new_end(&*(this->end() - erased)); new_end != this->end(); ++new_end)
-				this->m_alloc.destroy(&*new_end);
+			for (pointer new_end = &*(this->end() - erased); new_end != &*this->end(); ++new_end)
+				this->m_alloc.destroy(new_end);
 			this->m_size -= erased;
 		}
 		return (first);
@@ -656,8 +656,8 @@ public:
 
 	void	clear(void)
 	{
-		for (iterator it = this->begin(); it != this->end(); ++it)
-			this->m_alloc.destroy(&*it);
+		for (pointer it = &*this->begin(); it != &*this->end(); ++it)
+			this->m_alloc.destroy(it);
 		this->m_size = 0;
 	}
 
@@ -690,7 +690,7 @@ private:
 		vector::priv_range_unin_copy(iterator(new_start), this->begin(), this->begin() + pos);
 		vector::priv_range_unin_copy(iterator(new_start) + pos + n, this->begin() + pos, this->end());
 		this->erase(this->begin(), this->end());
-		m_alloc.deallocate(&*this->m_start, this->m_capacity);
+		m_alloc.deallocate(this->m_start, this->m_capacity);
 		this->m_capacity = new_capacity;
 		this->m_start = new_start;
 		this->m_size = new_size;
@@ -754,21 +754,15 @@ private:
 		else
 		{
 			size_type	elem_moved = this->m_size - pos;
-			reverse_iterator	new_end(this->end() + n);
-			reverse_iterator	old_end(this->end());
+			pointer	new_end = &*(this->end() + n - 1);
+			pointer	old_end = &*(this->end() - 1);
 			ft::reverse_iterator<Init>	r_last(last);
-			for (int i = elem_moved; i != 0; --i, ++new_end, ++old_end)
-				m_alloc.construct(&*new_end, *old_end);
-			for (int i = n - elem_moved; i != 0; --i, ++new_end, ++r_last)
-				m_alloc.construct(&*new_end, *r_last);
-			for (ft::reverse_iterator<Init> r_first(first); r_last != r_first; ++r_last, ++new_end)
+			for (int i = elem_moved; i != 0; --i, --new_end, --old_end)
+				m_alloc.construct(new_end, *old_end);
+			for (int i = n - elem_moved; i != 0; --i, --new_end, ++r_last)
+				m_alloc.construct(new_end, *r_last);
+			for (ft::reverse_iterator<Init> r_first(first); r_last != r_first; ++r_last, --new_end)
 				*new_end = *r_last;
-			/*
-			size_type	elem_moved = this->m_size - pos;
-			vector::priv_range_unin_copy_backward(this->end() + n, this->end(), this->end() - elem_moved);
-			vector::priv_range_unin_copy_backward(this->end() + n - elem_moved, last, first + elem_moved);
-			vector::priv_range_copy_backward(this->end(), first + elem_moved, first);
-			*/
 		}
 		this->m_size += n;
 	}
@@ -776,22 +770,22 @@ private:
 	/*	Insert a copy at initialized memory, using the = operator */
 	static void	priv_value_copy(iterator pos, const value_type& val, size_type n)
 	{
-		for (; n != 0; --n, ++pos)
-			*pos = val;
+		for (pointer p_pos = &*pos; n != 0; --n, ++p_pos)
+			*p_pos = val;
 	}
 
 	static void	priv_value_copy_backward(iterator pos,	const value_type& val, size_type n)
 	{
 		--pos;
-		for (; n != 0; --n, --pos)
-			*pos = val;
+		for (pointer p_pos = &*pos; n != 0; --n, --p_pos)
+			*p_pos = val;
 	}
 
 	template<class Init>
 	static void	priv_range_copy(iterator pos, Init first, Init last)
 	{
-		for (; first != last; ++first, ++pos)
-			*pos = *first;
+		for (pointer p_pos = &*pos; first != last; ++first, ++p_pos)
+			*p_pos = *first;
 	}
 
 	template<class Init>
@@ -801,28 +795,38 @@ private:
 		Init	p_last = last - 1;
 		
 		--pos;
-		for (; p_first != p_last; --p_first, --pos)
-			*pos = *p_first;
+		for (pointer p_pos = &*pos; p_first != p_last; --p_first, --p_pos)
+			*p_pos = *p_first;
+	}
+
+	static void	priv_range_copy_backward(iterator pos, iterator first, iterator last)
+	{
+		pointer	p_first = &*(first - 1);
+		pointer	p_last = &*(last - 1);
+		
+		--pos;
+		for (pointer p_pos = &*pos; p_first != p_last; --p_first, --p_pos)
+			*p_pos = *p_first;
 	}
 
 	/*   Insert a copy at an uninitialized memory, using Allocator.construct() */
 	void	priv_default_unin_copy(iterator pos, size_type n)
 	{
-		for (; n != 0; --n, ++pos)
-			m_alloc.construct(&*pos);
+		for (pointer p_pos = &*pos; n != 0; --n, ++p_pos)
+			m_alloc.construct(p_pos);
 	}
 
 	void	priv_value_unin_copy_backward(iterator pos, const value_type& val, size_type n)
 	{
 		--pos;
-		for (; n != 0; --n, --pos)
-			m_alloc.construct(&*pos, val);
+		for (pointer p_pos = &*pos; n != 0; --n, --p_pos)
+			m_alloc.construct(p_pos, val);
 	}
 
 	void	priv_value_unin_copy(iterator pos, const value_type& val, size_type n)
 	{
-		for (; n != 0; --n, ++pos)
-			m_alloc.construct(&*pos, val);
+		for (pointer p_pos = &*pos; n != 0; --n, ++p_pos)
+			m_alloc.construct(p_pos, val);
 	}
 
 	template<class Init>
@@ -832,8 +836,8 @@ private:
 		Init	p_last = last - 1;
 		
 		--pos;
-		for (; p_first != p_last; --p_first, --pos)
-			m_alloc.construct(&*pos, *p_first);
+		for (pointer p_pos = &*pos; p_first != p_last; --p_first, --p_pos)
+			m_alloc.construct(p_pos, *p_first);
 	}
 
 	void	priv_range_unin_copy_backward(iterator pos, iterator first, iterator last)
@@ -842,21 +846,24 @@ private:
 		iterator	p_last = last - 1;
 	
 		--pos;
-		for (; p_first != p_last; --p_first, --pos)
-			m_alloc.construct(&*pos, *p_first);
+		for (pointer p_pos = &*pos; p_first != p_last; --p_first, --p_pos)
+			m_alloc.construct(p_pos, *p_first);
 	}
 
 	template<class Init>
 	void	priv_range_unin_copy(iterator pos, Init first, Init last)
 	{
-		for (; first != last; ++first, ++pos)
-			m_alloc.construct(&*pos, *first);
+		for (pointer p_pos = &*pos; first != last; ++first, ++p_pos)
+			m_alloc.construct(p_pos, *first);
 	}
 
 	void	priv_range_unin_copy(iterator pos, iterator first, iterator last)
 	{
-		for (; first != last; ++first, ++pos)
-			m_alloc.construct(&*pos, *first);
+		pointer	p_pos = &*pos;
+		pointer	p_first = &*first;
+		pointer	p_last = &*last;
+		for (; p_first != p_last; ++p_first, ++p_pos)
+			m_alloc.construct(p_pos, *p_first);
 	}
 
 	template<class Init>
@@ -870,7 +877,7 @@ private:
 
 	static size_type priv_distance(iterator first, iterator last) 
 	{
-		difference_type	ptrdiff = &(*last) - &(*first);
+		difference_type	ptrdiff = &*last - &*first;
 		return (ptrdiff);
 	}
 
