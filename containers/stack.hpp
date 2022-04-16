@@ -6,7 +6,7 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/09 09:32:12 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/09 12:30:36 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/16 15:41:15 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,32 +98,32 @@ public:
 	}
 
 	/*   RELATIONAL OPERATORS */
-	bool	operator==(const stack& rhs)
+	bool	operator==(const stack& rhs) const
 	{
 		return (this->c == rhs.c);
 	}
 
-	bool	operator!=(const stack& rhs)
+	bool	operator!=(const stack& rhs) const
 	{
 		return (this->c != rhs.c);
 	}
 
-	bool	operator>=(const stack& rhs)
+	bool	operator>=(const stack& rhs) const
 	{
 		return (this->c >= rhs.c);
 	}
 
-	bool	operator<=(const stack& rhs)
+	bool	operator<=(const stack& rhs) const
 	{
 		return (this->c <= rhs.c);
 	}
 
-	bool	operator>(const stack& rhs)
+	bool	operator>(const stack& rhs) const
 	{
 		return (this->c > rhs.c);
 	}
 
-	bool	operator<(const stack& rhs)
+	bool	operator<(const stack& rhs) const
 	{
 		return (this->c < rhs.c);
 	}
