@@ -1,18 +1,8 @@
-/* ************************************************************************** */
-/*                                                        :::      ::::::::   */
-/*   map.hpp                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/04/13 10:30:27 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/14 14:49:08 by tamighi          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#ifndef FT_MAP_HPP
-#define FT_MAP_HPP
+#ifndef FT_SET_HPP
+#define FT_SET_HPP
 
 #include "pair.hpp"
+#include "map.hpp"
 #include "reverse_iterator.hpp"
 #include "equal.hpp"
 #include "lexicographical_compare.hpp"
@@ -22,40 +12,7 @@ namespace ft
 {
 
 template<class T>
-struct node
-{
-	typedef T					value_type;
-	typedef std::allocator<T>	allocator_type;
-
-	node(const value_type& value)
-		: color(1), is_leaf(false), parent(NULL), left(NULL), right(NULL), alloc()
-	{
-		val = alloc.allocate(1);
-		alloc.construct(val, value);
-	}
-
-	node(void)
-		: color(0), is_leaf(false), val(NULL), parent(NULL), left(NULL), right(NULL), alloc()
-	{
-	}
-
-	~node(void)
-	{
-		alloc.destroy(val);
-		alloc.deallocate(val, 1);
-	}
-
-	bool					color;
-	bool					is_leaf;
-	value_type				*val;
-	node					*parent;
-	node					*left;
-	node					*right;
-	allocator_type			alloc;
-};
-
-template<class T>
-class map_const_iterator
+class set_const_iterator
 {
 	/*   TYPE MEMBERS  */
 
@@ -78,17 +35,17 @@ private:
 public:
 
 	/*   CONSTRUCTORS / DESTRUCTOR  */
-	map_const_iterator(void)
+	set_const_iterator(void)
 		: m_ptr(0)
 	{
 	}
 
-	explicit map_const_iterator(node_pointer ptr)
+	explicit set_const_iterator(node_pointer ptr)
 		: m_ptr(ptr)
 	{
 	}
 
-	~map_const_iterator(void)
+	~set_const_iterator(void)
 	{
 	}
 
@@ -104,7 +61,7 @@ public:
 	}	
 
 	/*   INCREMENT/DECREMENT  */
-	map_const_iterator&	operator++(void)
+	set_const_iterator&	operator++(void)
 	{
 		if (m_ptr->right->is_leaf == false)
 		{
@@ -121,14 +78,14 @@ public:
 		return (*this);
 	}
 
-	map_const_iterator	operator++(int)
+	set_const_iterator	operator++(int)
 	{
 		node_pointer	tmp = m_ptr;
 		++*this;
-		return (map_const_iterator(tmp));
+		return (set_const_iterator(tmp));
 	}
 
-	map_const_iterator&	operator--(void)
+	set_const_iterator&	operator--(void)
 	{
 		if (m_ptr->left->is_leaf == false)
 		{
@@ -145,27 +102,27 @@ public:
 		return (*this);
 	}
 
-	map_const_iterator	operator--(int)
+	set_const_iterator	operator--(int)
 	{
 		node_pointer	tmp = m_ptr;
 		--*this;
-		return (map_const_iterator(tmp));
+		return (set_const_iterator(tmp));
 	}
 
 	/*   OPERATOR=  */
-	map_const_iterator	operator=(node_pointer ptr)
+	set_const_iterator	operator=(node_pointer ptr)
 	{
 		this->m_ptr = ptr;
 		return (*this);
 	}
 
 	/*   COMPARISON OPERATORS  */
-	bool	operator==(const map_const_iterator& r) const
+	bool	operator==(const set_const_iterator& r) const
 	{
 		return (this->m_ptr == r.m_ptr);
 	}
 
-	bool	operator!=(const map_const_iterator& r) const
+	bool	operator!=(const set_const_iterator& r) const
 	{
 		return (this->m_ptr != r.m_ptr);
 	}
@@ -175,111 +132,19 @@ protected:
 	node_pointer	m_ptr;
 };
 
-template<class T>
-class map_iterator : public map_const_iterator<T>
-{
-
-public:
-
-	typedef T										value_type;
-	typedef T*										pointer;
-	typedef ptrdiff_t								difference_type;
-	typedef T&										reference;
-	typedef std::random_access_iterator_tag			iterator_category;
-	
-	typedef node<T>		node;
-	typedef node*		node_pointer;
-
-public:
-
-	map_iterator(void)
-	{
-		this->m_ptr = 0;
-	}
-
-	explicit map_iterator(node_pointer ptr)
-		: map_const_iterator<T>(ptr)
-	{
-	}
-
-	/*   REFERENCES OPERATOR  */
-	reference	operator*(void)
-	{
-		return (*this->m_ptr->val);
-	}
-
-	pointer	operator->(void) const
-	{
-		return (this->m_ptr->val);
-	}
-
-	/*   INCREMENT / DECREMENT  */
-	map_iterator&	operator++(void)
-	{
-		if (this->m_ptr->right->is_leaf == false)
-		{
-			this->m_ptr = this->m_ptr->right;
-			while (this->m_ptr->left->is_leaf == false)
-				this->m_ptr = this->m_ptr->left;
-		}
-		else
-		{
-			while (this->m_ptr->parent->right == this->m_ptr)
-				this->m_ptr = this->m_ptr->parent;
-			this->m_ptr = this->m_ptr->parent;
-		}
-		return (*this);
-	}
-
-	map_iterator	operator++(int)
-	{
-		node_pointer	tmp = this->m_ptr;
-		++*this;
-		return (map_iterator(tmp));
-	}
-
-	map_iterator&	operator--(void)
-	{
-		if (this->m_ptr->left->is_leaf == false)
-		{
-			this->m_ptr = this->m_ptr->left;
-			while (this->m_ptr->right->is_leaf == false)
-				this->m_ptr = this->m_ptr->right;
-		}
-		else
-		{
-			while (this->m_ptr->parent->left == this->m_ptr)
-				this->m_ptr = this->m_ptr->parent;
-			this->m_ptr = this->m_ptr->parent;
-		}
-		return (*this);
-	}
-
-	map_iterator	operator--(int)
-	{
-		node_pointer	tmp = this->m_ptr;
-		--*this;
-		return (map_iterator(tmp));
-	}
-
-};
-
-
-template<class Key, class T, class Compare = std::less<Key>, class Alloc = std::allocator<ft::pair<const Key, T> > >
-class map
+template<class Key, class Compare = std::less<Key>, class Alloc = std::allocator<Key> >
+class set
 {
 	/*   MEMBER TYPES  */
 
 public:
-	class value_compare;
-
 	typedef Key										key_type;
-	typedef T										mapped_type;
+	typedef Key										value_type;
 
-	typedef ft::pair<const Key, T>					value_type;
 	typedef size_t									size_type;
 	typedef ptrdiff_t								difference_type;
 	typedef Compare									key_compare;
+	typedef Compare									value_compare;
 	typedef std::random_access_iterator_tag			iterator_category;
 	typedef Alloc									allocator_type;
 	typedef value_type&								reference;
@@ -287,8 +152,8 @@ public:
 	typedef typename Alloc::pointer					pointer;
 	typedef typename Alloc::const_pointer			const_pointer;
 
-	typedef	map_iterator<value_type>				iterator;
-	typedef map_const_iterator<value_type>			const_iterator;
+	typedef	set_const_iterator<value_type>			const_iterator;
+	typedef const_iterator							iterator;
 	typedef ft::reverse_iterator<iterator>			reverse_iterator;
 	typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 
@@ -301,7 +166,7 @@ private:
 public:
 
 	/*   CONSTRUCTORS / DESTRUCTOR  */
-	map(const allocator_type& alloc = allocator_type())
+	set(const allocator_type& alloc = allocator_type())
 		: m_node_alloc(), m_alloc(alloc), m_size(0), m_comp(),
 		m_leaf(priv_newNode()), m_end(priv_newNode()), m_begin(m_end), m_root(m_end)
 	{
@@ -310,7 +175,7 @@ public:
 		m_end->left = m_leaf;
 	}
 
-	explicit map(const key_compare& comp, const allocator_type& alloc = allocator_type())
+	explicit set(const Compare& comp, const allocator_type& alloc = allocator_type())
 		: m_node_alloc(), m_alloc(alloc), m_size(0), m_comp(comp),
 		m_leaf(priv_newNode()), m_end(priv_newNode()), m_begin(m_end), m_root(m_end)
 	{
@@ -320,7 +185,7 @@ public:
 	}
 
 	template<class Init>
-	map(Init first, Init last, const key_compare& comp = key_compare(),
+	set(Init first, Init last, const Compare& comp = Compare(),
 		const allocator_type& alloc = allocator_type())
 		: m_node_alloc(), m_alloc(alloc), m_size(0), m_comp(comp),
 		m_leaf(priv_newNode()), m_end(priv_newNode()), m_begin(m_end), m_root(m_end)
@@ -331,7 +196,7 @@ public:
 		insert(first, last);
 	}
 
-	map(const map& other)
+	set(const set& other)
 		: m_node_alloc(), m_alloc(), m_size(0), m_comp(),
 		m_leaf(priv_newNode()), m_end(priv_newNode()), m_begin(m_end), m_root(m_end)
 	{
@@ -341,7 +206,7 @@ public:
 		*this = other;
 	}
 
-	~map(void)
+	~set(void)
 	{
 		//priv_print_tree(m_root, "", true);
 		priv_tree_destroy(m_root);
@@ -350,7 +215,7 @@ public:
 	}
 
 	/*   OPERATOR= / GET_ALLOC  */
-	map&	operator=(const map& other)
+	set&	operator=(const set& other)
 	{
 		erase(begin(), end());
 		insert(other.begin(), other.end());
@@ -360,34 +225,6 @@ public:
 	allocator_type	get_allocator(void) const
 	{
 		return (m_alloc);
-	}
-
-	/*   ELEMENT ACCESS  */
-	mapped_type&	at(const key_type& k)
-	{
-		node_pointer	n = priv_search_key(k);
-		if (n == m_leaf || n == m_end)
-			throw OutOfRangeException();
-		return (n->val->second);
-	}
-
-	const mapped_type&	at(const key_type& k) const
-	{
-		node_pointer	n = priv_search_key(k);
-		if (n == m_leaf || n == m_end)
-			throw OutOfRangeException();
-		return (n->val->second);
-	}
-
-	mapped_type&	operator[](const key_type& k)
-	{
-		node_pointer				n = priv_search_key(k);
-		if (n == m_leaf || n == m_end)
-		{
-			insert(ft::make_pair<Key, T>(k, T()));
-			n = priv_search_key(k);
-		}
-		return (n->val->second);
 	}
 
 	/*   ITERATORS  */
@@ -492,7 +329,7 @@ public:
 		ft::pair<iterator, bool>	mp;
 		if (hint == end())
 			--hint;
-		mp = priv_insert_hint(new_node, priv_search_key(hint->first));
+		mp = priv_insert_hint(new_node, priv_search_key(*hint));
 		if (mp.second == true)
 		{
 			++m_size;
@@ -510,7 +347,7 @@ public:
 
 	void	erase(iterator pos)
 	{
-		priv_remove(priv_search_key(pos->first));
+		priv_remove(priv_search_key(*pos));
 	}
 
 	void	erase(iterator first, iterator last)
@@ -518,7 +355,7 @@ public:
 		for (iterator tmp = first; first != last;)
 		{
 			++tmp;
-			erase(iterator(priv_search_key(first->first)));
+			erase(iterator(priv_search_key(*first)));
 			first = tmp;
 		}
 	}
@@ -534,9 +371,9 @@ public:
 		return (0);
 	}
 
-	void	swap(map& other)
+	void	swap(set& other)
 	{
-		map					m;
+		set					m;
 		node_pointer		leaf = m.m_leaf;
 		node_pointer		end = m.m_end;
 		node_allocator_type	node_alloc = m.m_node_alloc;
@@ -559,7 +396,7 @@ public:
 		return (1);
 	}	
 
-	iterator	find(const Key& k)
+	iterator	find(const Key& k) 
 	{
 		node_pointer	n = priv_search_key(k);
 		if (n == m_leaf || n == m_end)
@@ -588,7 +425,7 @@ public:
 	iterator	lower_bound(const Key& k)
 	{
 		iterator it = begin();
-		for (; it != end() && m_comp(it->first, k); ++it)
+		for (; it != end() && m_comp(*it, k); ++it)
 			;
 		return (it);
 	}
@@ -596,7 +433,7 @@ public:
 	const_iterator	lower_bound(const Key& k) const
 	{
 		const_iterator it = begin();
-		for (; it != end() && m_comp(it->first, k); ++it)
+		for (; it != end() && m_comp(*it, k); ++it)
 			;
 		return (it);
 	}
@@ -604,7 +441,7 @@ public:
 	iterator	upper_bound(const Key& k)
 	{
 		iterator it = begin();
-		for (; it != end() && !m_comp(k, it->first); ++it)
+		for (; it != end() && !m_comp(k, *it); ++it)
 			;
 		return (it);
 	}
@@ -612,7 +449,7 @@ public:
 	const_iterator	upper_bound(const Key& k) const
 	{
 		const_iterator it = begin();
-		for (; it != end() && !m_comp(k, it->first); ++it)
+		for (; it != end() && !m_comp(k, *it); ++it)
 			;
 		return (it);
 	}
@@ -625,7 +462,7 @@ public:
 
 	value_compare	value_comp(void) const
 	{
-		return (value_compare(m_comp));
+		return (m_comp);
 	}
 
 private:
@@ -636,9 +473,9 @@ private:
 		node_pointer	ptr = m_root;
 		while (ptr != m_leaf && ptr != m_end)
 		{
-			if (m_comp(k, ptr->val->first))
+			if (m_comp(k, *ptr->val))
 				ptr = ptr->left;
-			else if (m_comp(ptr->val->first, k))
+			else if (m_comp(*ptr->val, k))
 				ptr = ptr->right;
 			else
 				break;
@@ -665,9 +502,9 @@ private:
 	{
 		if (hint == m_root)
 			return (priv_insert(new_node, m_root));
-		else if (m_comp(new_node->val->first, hint->val->first) && hint == hint->parent->left)
+		else if (m_comp(*new_node->val, *hint->val) && hint == hint->parent->left)
 			return (priv_insert(new_node, hint));
-		else if (m_comp(hint->val->first, new_node->val->first) && hint == hint->parent->right)
+		else if (m_comp(*hint->val, *new_node->val) && hint == hint->parent->right)
 			return (priv_insert(new_node, hint));
 		else
 			return (priv_insert_hint(new_node, hint->parent));
@@ -675,7 +512,7 @@ private:
 
 	ft::pair<iterator, bool>	priv_insert(node_pointer new_node, node_pointer it)
 	{
-		if (m_comp(new_node->val->first, it->val->first))
+		if (m_comp(*new_node->val, *it->val))
 		{
 			if (it->left->is_leaf)
 			{
@@ -687,7 +524,7 @@ private:
 			}
 			return (priv_insert(new_node, it->left));
 		}
-		else if (m_comp(it->val->first, new_node->val->first))
+		else if (m_comp(*it->val, *new_node->val))
 		{
 			if (it->right->is_leaf || it->right == m_end)
 			{
@@ -944,7 +781,7 @@ private:
 		m_begin = m_end;
 	}
 
-	void	priv_give_member(map& from, map& other)
+	void	priv_give_member(set& from, set& other)
 	{
 		other.m_node_alloc = from.m_node_alloc;
 		other.m_alloc = from.m_alloc;
@@ -972,7 +809,7 @@ private:
 				indent += "|    ";
 			}
 			std::string sColor = root->color?"RED":"BLACK";
-			std::cout<<root->val->first<<"("<<sColor<<")"<<std::endl;
+			std::cout<<root->val<<"("<<sColor<<")"<<std::endl;
 			priv_print_tree(root->left, indent, false);
 			priv_print_tree(root->right, indent, true);
 		}
@@ -1001,7 +838,7 @@ private:
 	node_allocator_type			m_node_alloc;
 	allocator_type				m_alloc;
 	size_type					m_size;
-	key_compare					m_comp;
+	Compare						m_comp;
 
 	node_pointer				m_leaf;
 	node_pointer				m_end;
@@ -1016,78 +853,57 @@ private:
 	{
 	public :
 		OutOfRangeException()
-			: std::out_of_range("Ft::map : Index out of bounds") {}
+			: std::out_of_range("Ft::set : Index out of bounds") {}
 	};
 
-public:
-
-	class value_compare
-	{
-
-		friend class map;
-
-	public:
-		bool	operator()(const value_type& lhs, const value_type& rhs)
-		{
-			return (comp(lhs.first, rhs.first));
-		}
-
-	protected:
-		value_compare(Compare c)
-			: comp(c)
-		{
-		}
-
-		Compare comp;
-	};
 };
 
 	/*   NON_MEMBER FUNCTIONS  */
-template<class Key, class T, class Compare, class Alloc>
-bool	operator==(const map<Key, T, Compare, Alloc>& lhs,
-					const map<Key, T, Compare, Alloc>& rhs)
+template<class Key, class Compare, class Alloc>
+bool	operator==(const set<Key, Compare, Alloc>& lhs,
+					const set<Key, Compare, Alloc>& rhs)
 {
 	return (lhs.size() == rhs.size() && ft::equal(lhs.begin(), lhs.end(), rhs.begin()));
 }
 
-template<class Key, class T, class Compare, class Alloc>
-bool	operator!=(const map<Key, T, Compare, Alloc>& lhs,
-					const map<Key, T, Compare, Alloc>& rhs)
+template<class Key, class Compare, class Alloc>
+bool	operator!=(const set<Key, Compare, Alloc>& lhs,
+					const set<Key, Compare, Alloc>& rhs)
 {
 	return (!(lhs == rhs));
 }
 
-template<class Key, class T, class Compare, class Alloc>
-bool	operator<(const map<Key, T, Compare, Alloc>& lhs,
-					const map<Key, T, Compare, Alloc>& rhs)
+template<class Key, class Compare, class Alloc>
+bool	operator<(const set<Key, Compare, Alloc>& lhs,
+					const set<Key, Compare, Alloc>& rhs)
 {
 	return (lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
 }
 
-template<class Key, class T, class Compare, class Alloc>
-bool	operator>(const map<Key, T, Compare, Alloc>& lhs,
-					const map<Key, T, Compare, Alloc>& rhs)
+template<class Key, class Compare, class Alloc>
+bool	operator>(const set<Key, Compare, Alloc>& lhs,
+					const set<Key, Compare, Alloc>& rhs)
 {
 	return (lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end()));
 }
 
-template<class Key, class T, class Compare, class Alloc>
-bool	operator>=(const map<Key, T, Compare, Alloc>& lhs,
-					const map<Key, T, Compare, Alloc>& rhs)
+template<class Key, class Compare, class Alloc>
+bool	operator>=(const set<Key, Compare, Alloc>& lhs,
+					const set<Key, Compare, Alloc>& rhs)
 {
 	return (!(lhs < rhs));
 }
 
-template<class Key, class T, class Compare, class Alloc>
-bool	operator<=(const map<Key, T, Compare, Alloc>& lhs,
-					const map<Key, T, Compare, Alloc>& rhs)
+template<class Key, class Compare, class Alloc>
+bool	operator<=(const set<Key, Compare, Alloc>& lhs,
+					const set<Key, Compare, Alloc>& rhs)
 {
 	return (!(lhs > rhs));
 }
 
-template<class Key, class T, class Compare, class Alloc>
-void	swap(const map<Key, T, Compare, Alloc>& lhs,
-			const map<Key, T, Compare, Alloc>& rhs)
+template<class Key, class Compare, class Alloc>
+void	swap(const set<Key, Compare, Alloc>& lhs,
+			const set<Key, Compare, Alloc>& rhs)
 {
 	lhs.swap(rhs);
 }

@@ -6,108 +6,166 @@
 /*   By: tamighi <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/09 11:05:11 by tamighi           #+#    #+#             */
-/*   Updated: 2022/04/16 15:33:18 by tamighi          ###   ########.fr       */
+/*   Updated: 2022/04/18 11:47:10 by tamighi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "containers/map.hpp"
+#include "containers/vector.hpp"
+#include "containers/stack.hpp"
+#include "containers/set.hpp"
 #include <map>
-#include "containers/pair.hpp"
-#include "containers/iterator_traits.hpp"
-#include "containers/reverse_iterator.hpp"
-#include "containers/is_integral.hpp"
-#include "containers/equal.hpp"
-#include "containers/enable_if.hpp"
+#include <vector>
+#include <stack>
+#include <set>
 #include <sys/time.h>
 
-class MyClass
-{
-public:
-	MyClass(void)
-	{
-		std::cout << "Constructed\n";
-		x = 0;
-	}
-	MyClass(const MyClass &other)
-	{
-		std::cout << "Copied " << other.x << std::endl;
-		x = other.x;
-	}
-	MyClass(int n)
-	{
-		std::cout << "Int copied\n";
-		x = n;
-	}
-	~MyClass(void)
-	{
-		std::cout << "Destructed\n";
-	}
-	MyClass	&operator=(const MyClass &assign)
-	{
-		std::cout << "Assigned " << assign.x << std::endl;
-		x = assign.x;
-		return (*this);
-	}
-	MyClass	&operator=(int n)
-	{
-		std::cout << "Int assigned\n";
-		x = n;
-		return (*this);
-	}
-	int	x;
-};
+using namespace NAMESPACE;
 
-std::ostream	&operator<<(std::ostream &ost, MyClass &mc)
+template<class T>
+void	print_cont(vector<T>& cont)
 {
-	ost << mc.x;
-	return (ost);
+	std::cout << "Size : "<< cont.size() << ", capacity : " << cont.capacity() << std::endl;
+	std::cout << "Iteration :\n";
+	for (typename vector<T>::iterator it = cont.begin(); it != cont.end(); ++it)
+		std::cout << *it << " ";
+	std::cout << std::endl;
 }
 
-template<class Cont>
-void	print_cont(Cont &cont)
+template<class T, class Mapped>
+void	print_cont(map<T, Mapped>& cont)
 {
-	for (typename Cont::iterator it = cont.begin(); it != cont.end(); ++it)
-		std::cout << it->first << " ";
+	std::cout << "Size : "<< cont.size() << std::endl;
+	std::cout << "Iteration :\n";
+	for (typename map<T, Mapped>::iterator it = cont.begin(); it != cont.end(); ++it)
+		std::cout << it->first << " = " << it->second << ", ";
+	std::cout << std::endl;
+}
+
+template<class T>
+void	print_cont(set<T>& cont)
+{
+	std::cout << "Size : "<< cont.size() << std::endl;
+	std::cout << "Iteration :\n";
+	for (typename set<T>::iterator it = cont.begin(); it != cont.end(); ++it)
+		std::cout << *it << " ";
+	std::cout << std::endl;
+}
+
+template<class T>
+void	print_cont(stack<T>& cont)
+{
+	std::cout << "Size : "<< cont.size() << ", top : "<< cont.top() << std::endl;
 	std::cout << std::endl;
 }
 
 int	main(void)
 {
-	{
-		using namespace ft;
-
-		map<int, int>	m;
-		map<int, int>	m2;
-		map<int, int>::iterator it;
-		m.insert(make_pair<int, int>(1, 6));
-		m.insert(make_pair<int, int>(2, 6));
-		m.insert(make_pair<int, int>(3, 6));
-		m.insert(make_pair<int, int>(10, 10));
-		m.insert(make_pair<int, int>(11, 10));
-		m.insert(make_pair<int, int>(12, 10));
-		m2.insert(make_pair<int, int>(13, 10));
-		m2.swap(m);
-		print_cont(m2);
-
-		//std::cout << m.get_allocator().max_size() << std::endl;
-	}
-	/*
-	{
-		using namespace ft;
-
-		map<int, int>	m;
-		m.insert(ft::make_pair<int, int>(0, 6));
-		m.insert(ft::make_pair<int, int>(1, 6));
-		m.insert(ft::make_pair<int, int>(2, 6));
-		m.insert(ft::make_pair<int, int>(3, 5));
-		m.insert(ft::make_pair<int, int>(4, 6));
-		m.insert(ft::make_pair<int, int>(5, 6));
-		m.insert(ft::make_pair<int, int>(6, 6));
-		m.insert(ft::make_pair<int, int>(8, 6));
-		m.insert(ft::make_pair<int, int>(9, 6));
-		//print_cont(m);
-		//std::cout << m.max_size() << std::endl;
-		//std::cout << m.get_allocator().max_size() << std::endl;
-	}
-	*/
+	std::cout << "---------------------Vector------------------\n\n";
+	vector<int>		vec;
+	vector<int>		vec2;
+	struct timeval now;
+	time_t		msec;
+	time_t	msec2;
+	print_cont(vec);
+	std::cout << "\n--------Resize 10--------\n";
+	vec.resize(10);
+	print_cont(vec);
+	std::cout << "\n--------Assign 4, 8--------\n";
+	vec.assign(4, 8);
+	print_cont(vec);
+	std::cout << "\n--------Assign prev vector to new vector--------\n";
+	vec2.assign(vec.begin(), vec.end());
+	print_cont(vec);
+	std::cout << "\n--------3x pop back--------\n";
+	vec.pop_back();
+	vec.pop_back();
+	vec.pop_back();
+	print_cont(vec);
+	std::cout << "\n--------Push back x 1 000 000--------\n";
+	gettimeofday(&now, 0);
+	msec = now.tv_sec * 1000 + now.tv_usec / 1000;
+	for (int i = 0; i < 1000000; ++i)
+		vec.push_back(i);
+	gettimeofday(&now, 0);
+	msec2 = now.tv_sec * 1000 + now.tv_usec / 1000;
+	std::cout << "Time taken : " << msec2 - msec << std::endl;
+	std::cout << "Size : "<< vec.size() << ", Capacity : " << vec.capacity() << std::endl;
+	std::cout << "\n--------Erase from begin + 3 to end - 1--------\n";
+	vec.erase(vec.begin() + 3, vec.end() - 1);
+	print_cont(vec);
+	std::cout << "\n--------Insert at begining (3, 2)--------\n";
+	vec.insert(vec.begin(), 3, 2);
+	print_cont(vec);
+	std::cout << "\n--------Clear--------\n";
+	vec.clear();
+	print_cont(vec);
+	std::cout << "\n--------Operator= -------\n";
+	vec = vec2;
+	print_cont(vec);
+	std::cout << "\n---------------------Stack------------------\n\n";
+	stack<int>	st;
+	std::cout << "\n--------Push 5 and 6--------\n";
+	st.push(5);	
+	st.push(6);	
+	print_cont(st);
+	std::cout << "\n--------Pop--------\n";
+	st.pop();
+	print_cont(st);
+	std::cout << "\n---------------------Map------------------\n\n";
+	map<std::string, int>	mp;
+	map<std::string, int>::iterator	it;
+	std::cout << "\n--------Insert by index--------\n";
+	mp["Hello"] = 1;
+	mp["Bouya"] = 3;
+	print_cont(mp);
+	std::cout << "\n--------Insert with map::insert--------\n";
+	mp.insert(make_pair<std::string, int>("Carrot", 10));
+	print_cont(mp);
+	std::string	str = "mp ";
+	std::cout << "\n--------Insert 100000 element-------\n";
+	gettimeofday(&now, 0);
+	msec = now.tv_sec * 1000 + now.tv_usec / 1000;
+	for (int i = 0; i < 100000; ++i)
+		mp[str + std::to_string(i)] = i;
+	gettimeofday(&now, 0);
+	msec2 = now.tv_sec * 1000 + now.tv_usec / 1000;
+	std::cout << "Time taken : " << msec2 - msec << std::endl;
+	std::cout << "\n--------Erase from beg + 10 to end-------\n";
+	it = mp.begin();
+	for (int i = 0; i < 10; ++i)
+		++it;
+	gettimeofday(&now, 0);
+	msec = now.tv_sec * 1000 + now.tv_usec / 1000;
+	mp.erase(it, mp.end());
+	gettimeofday(&now, 0);
+	msec2 = now.tv_sec * 1000 + now.tv_usec / 1000;
+	std::cout << "Time taken : " << msec2 - msec << std::endl;
+	print_cont(mp);
+	std::cout << "\n---------------------Set------------------\n\n";
+	set<int>	s;
+	set<int>::iterator	it2;
+	std::cout << "\n--------Insert with set::insert--------\n";
+	s.insert(5);
+	print_cont(s);
+	std::cout << "\n--------Insert 100000 element-------\n";
+	gettimeofday(&now, 0);
+	msec = now.tv_sec * 1000 + now.tv_usec / 1000;
+	for (int i = 0; i < 100000; ++i)
+		s.insert(i);
+	gettimeofday(&now, 0);
+	msec2 = now.tv_sec * 1000 + now.tv_usec / 1000;
+	std::cout << "Time taken : " << msec2 - msec << std::endl;
+	std::cout << "\n--------Erase from beg + 10 to end-------\n";
+	it2 = s.begin();
+	for (int i = 0; i < 10; ++i)
+		++it2;
+	gettimeofday(&now, 0);
+	msec = now.tv_sec * 1000 + now.tv_usec / 1000;
+	s.erase(it2, s.end());
+	gettimeofday(&now, 0);
+	msec2 = now.tv_sec * 1000 + now.tv_usec / 1000;
+	std::cout << "Time taken : " << msec2 - msec << std::endl;
+	print_cont(s);
+	return (0);
 }
