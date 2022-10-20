@@ -19,11 +19,8 @@ OBJ_DIR = objs/
 
 FILES = main.cpp
 F_DIR = ./
-HEADERS = iterator_traits.hpp map.hpp
-H_DIR = containers/
 
 SRCS = $(addprefix $(F_DIR), $(FILES))
-INCLUDES = $(addprefix $(H_DIR), $(HEADERS))
 
 STD_OBJS = $(addprefix $(OBJ_DIR), $(addprefix std_, $(FILES:.cpp=.o)))
 FT_OBJS = $(addprefix $(OBJ_DIR), $(addprefix ft_, $(FILES:.cpp=.o)))
@@ -32,11 +29,11 @@ RM = rm -rf
 
 all: $(STD_NAME) $(FT_NAME)
 
-$(OBJ_DIR)std_%.o: $(F_DIR)%.cpp $(INCLUDES) 
+$(OBJ_DIR)std_%.o: $(F_DIR)%.cpp 
 	mkdir -p $(OBJ_DIR)
 	$(CC) $(FLAGS) -o $@ -c $< -D NAMESPACE=std
 
-$(OBJ_DIR)ft_%.o: $(F_DIR)%.cpp $(INCLUDES) 
+$(OBJ_DIR)ft_%.o: $(F_DIR)%.cpp 
 	mkdir -p $(OBJ_DIR)
 	$(CC) $(FLAGS) -o $@ -c $< -D NAMESPACE=ft
 
