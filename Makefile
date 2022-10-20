@@ -13,7 +13,7 @@
 STD_NAME = std_cont
 FT_NAME = ft_cont
 CC = c++
-FLAGS = -Wall -Werror -Wextra -pedantic -std=c++98
+FLAGS = -Wall -Werror -Wextra -pedantic -std=c++11
 
 OBJ_DIR = objs/
 

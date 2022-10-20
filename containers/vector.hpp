@@ -12,14 +12,12 @@
 #ifndef VECTOR_HPP
 # define VECTOR_HPP
 
-#include <cstring>
 #include "iterator_traits.hpp"
 #include "reverse_iterator.hpp"
 #include "equal.hpp"
 #include "lexicographical_compare.hpp"
 #include "is_integral.hpp"
 #include "enable_if.hpp"
-#include <iostream>
 
 namespace ft
 {

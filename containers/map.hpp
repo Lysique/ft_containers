@@ -68,10 +68,10 @@ public:
 	typedef std::random_access_iterator_tag			iterator_category;
 
 private:
-	typedef node<T>		node;
-	typedef node*		node_pointer;
-	typedef node&		node_reference;
-	typedef const node*	node_const_pointer;
+	typedef node<T>			node_type;
+	typedef node_type*		node_pointer;
+	typedef node_type&		node_reference;
+	typedef const node_type*	node_const_pointer;
 
 	/*   FUNCTIONS MEMBERS  */
 
@@ -98,7 +98,7 @@ public:
 		return (*m_ptr->val);
 	}
 
-	const pointer	operator->(void) const
+	pointer	operator->(void) const
 	{
 		return (m_ptr->val);
 	}	
@@ -187,8 +187,8 @@ public:
 	typedef T&										reference;
 	typedef std::random_access_iterator_tag			iterator_category;
 	
-	typedef node<T>		node;
-	typedef node*		node_pointer;
+	typedef node<T>		node_type;
+	typedef node_type*	node_pointer;
 
 public:
 
@@ -293,9 +293,9 @@ public:
 	typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 
 private:
-	typedef node<value_type>		node;
-	typedef node*					node_pointer;
-	typedef std::allocator<node>	node_allocator_type;
+	typedef node<value_type>		node_type;
+	typedef node_type*			node_pointer;
+	typedef std::allocator<node_type>	node_allocator_type;
 
 	/*   MEMBER FUNCTIONS  */
 public:
@@ -978,18 +978,18 @@ private:
 		}
 	}
 
-	node*	priv_newNode(const value_type& val)
+	node_pointer	priv_newNode(const value_type& val)
 	{
-		node*	new_node = m_node_alloc.allocate(1);
+		node_pointer	new_node = m_node_alloc.allocate(1);
 		m_node_alloc.construct(new_node, val);
 		new_node->left = m_leaf;
 		new_node->right = m_leaf;
 		return (new_node);
 	}
 
-	node*	priv_newNode(void)
+	node_pointer	priv_newNode(void)
 	{
-		node*	new_node = m_node_alloc.allocate(1);
+		node_pointer	new_node = m_node_alloc.allocate(1);
 		m_node_alloc.construct(new_node);
 		return (new_node);
 	}

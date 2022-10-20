@@ -14,6 +14,7 @@
 # define FT_ITERATOR_TRAITS_HPP
 
 #include <iostream>
+#include <cstddef>
 
 namespace ft
 {
